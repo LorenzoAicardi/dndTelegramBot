@@ -1,0 +1,274 @@
+{
+  "simpleMeleeWeapons": {
+      "club": {
+        "cost": [1, "sp"],
+        "damage": [1, "d4", "b"],
+        "weight": 2,
+        "properties": ["Light"]
+      },
+      "dagger": {
+        "cost": [2, "gp"],
+        "damage": [1, "d4", "p"],
+        "weight": 1,
+        "properties": ["Finesse", "Light", ["t",20,60]]
+      },
+      "greatClub": {
+        "cost": [2, "sp"],
+        "damage": [1, "d8", "b"],
+        "weight": 10,
+        "properties": ["Two-handed"]
+      },
+      "handAxe": {
+        "cost": [5, "gp"],
+        "damage": [1, "d6", "s"],
+        "weight": 2,
+        "properties": ["Light", ["t",20,60]]
+      },
+      "javelin": {
+        "cost": [5, "sp"],
+        "damage": [1, "d6", "p"],
+        "weight": 2,
+        "properties": [["t",30,120]]
+      },
+      "lightHammer": {
+        "cost": [2, "gp"],
+        "damage": [1, "d4", "b"],
+        "weight": 2,
+        "properties": ["Light", ["t",20,60]]
+      },
+      "mace": {
+        "cost": [5, "gp"],
+        "damage": [1, "d6", "b"],
+        "weight": 4,
+        "properties": ["none"]
+      },
+      "quarterstaff": {
+        "cost": [2, "sp"],
+        "damage": [1, "d6", "b"],
+        "weight": 4,
+        "properties": [["v", 1,"d8"]]
+      },
+      "sickle": {
+        "cost": [1, "gp"],
+        "damage": [1, "d4", "s"],
+        "weight": 2,
+        "properties": ["Light"]
+      },
+      "spear": {
+        "cost": [1, "gp"],
+        "damage": [1, "d6", "p"],
+        "weight": 3,
+        "properties": [["t",20,60], ["v", 1,"d6"]]
+      }
+  },
+  "simpleRangedWeapons": {
+      "lightCrossbow": {
+        "cost": [25, "gp"],
+        "damage": [1, "d8", "p"],
+        "weight": 5,
+        "properties": [["a",80,320], "loading", "two-handed"]
+      },
+      "dart": {
+        "cost": [5, "cp"],
+        "damage": [1, "d4", "p"],
+        "weight": 0.25,
+        "properties": ["finesse", ["t",20,60]]
+      },
+      "shortBow": {
+        "cost": [25, "gp"],
+        "damage": [1,"d6","p"],
+        "weight": 2,
+        "properties": [["a", 80, 320], "two-handed"]
+      },
+      "sling": {
+        "cost": [1, "sp"],
+        "damage": [1, "d4", "p"],
+        "weight": 0,
+        "properties": [["a", 30, 120]]
+      }
+  },
+  "martialMeleeWeapons": {
+      "battleAxe": {
+        "cost": [10, "gp"],
+        "damage": [1, "d8", "s"],
+        "weight": 4,
+        "properties": [["v", 1, "d8"]]
+      },
+      "flail": {
+        "cost": [10, "gp"],
+        "damage": [1, "d8", "b"],
+        "weight": 2,
+        "properties": ["none"]
+      },
+      "glaive": {
+        "cost": [20, "gp"],
+        "damage": [1, "d10", "b"],
+        "weight": 6,
+        "properties": ["heavy", "reach", "two-handed"]
+      },
+      "greatAxe": {
+        "cost": [30, "gp"],
+        "damage": [1, "d12", "s"],
+        "weight": 7,
+        "properties": ["heavy", "two-handed"]
+      },
+      "greatSword": {
+        "cost": [50, "gp"],
+        "damage": [2, "d6", "s"],
+        "weight": 6,
+        "properties": ["heavy", "two-handed"]
+      },
+      "halberd": {
+        "cost": [20, "gp"],
+        "damage": [1, "d10", "s"],
+        "weight": 6,
+        "properties": ["heavy", "reach", "two-handed"]
+      },
+      "lance": {
+        "cost": [10, "gp"],
+        "damage": [1, "d12", "p"],
+        "weight": 6,
+        "properties": ["reach", "special"]
+      },
+      "longSword": {
+        "cost": [15, "gp"],
+        "damage": [1, "d8", "s"],
+        "weight": 3,
+        "properties": [["v", 1, "d10"]]
+      },
+      "maul": {
+        "cost": [10, "gp"],
+        "damage": [2, "d6", "b"],
+        "weight": 10,
+        "properties": ["heavy", "two-handed"]
+      },
+      "morningstar": {
+        "cost": [15, "gp"],
+        "damage": [1, "d8", "p"],
+        "weight": 4,
+        "properties": ["none"]
+      },
+      "pike": {
+        "cost": [5, "gp"],
+        "damage": [1, "d10", "p"],
+        "weight": 18,
+        "properties": ["heavy", "reach", "two-handed"]
+      },
+      "rapier": {
+        "cost": [25, "gp"],
+        "damage": [1, "d8", "p"],
+        "weight": 2,
+        "properties": ["finesse"]
+      },
+      "scimitar": {
+        "cost": [25, "gp"],
+        "damage": [1, "d6", "s"],
+        "weight": 3,
+        "properties": ["finesse", "light"]
+      },
+      "shortSword": {
+        "cost": [10, "gp"],
+        "damage": [1, "d6", "p"],
+        "weight": 2,
+        "properties": ["finesse", "light"]
+      },
+      "trident": {
+        "cost": [5, "gp"],
+        "damage": [1, "d6", "p"],
+        "weight": 4,
+        "properties": [["t", 20, 60], ["v", 1, "d8"]]
+      },
+      "warPick": {
+        "cost": [5, "gp"],
+        "damage": [1, "d8", "p"],
+        "weight": 2,
+        "properties": ["none"]
+      },
+      "warHammer": {
+        "cost": [15, "gp"],
+        "damage": [1, "d8", "b"],
+        "weight": 2,
+        "properties": [["v", 1, "d10"]]
+      },
+      "whip": {
+        "cost": [2, "gp"],
+        "damage": [1, "d4", "s"],
+        "weight": 3,
+        "properties": ["finesse", "reach"]
+      }
+  },
+  "martialRangedWeapons": {
+      "blowgun": {
+        "cost": [10, "gp"],
+        "damage": [1, "d4", "p"],
+        "weight": 1,
+        "properties": [["a", 25, 100], "loading"]
+      },
+      "handCrossbow": {
+        "cost": [75, "gp"],
+        "damage": [1, "d6", "p"],
+        "weight": 3,
+        "properties": [["a", 30, 120], "light", "loading"]
+      },
+      "heavyCrossbow": {
+        "cost": [50, "gp"],
+        "damage": [1, "d10", "p"],
+        "weight": 18,
+        "properties": [["a", 100, 400], "heavy", "loading", "two-handed"]
+      },
+      "longbow": {
+        "cost": [50, "gp"],
+        "damage": [1, "d8", "p"],
+        "weight": 2,
+        "properties": [["a", 150, 600], "heavy", "two-handed"]
+      },
+      "net": {
+        "cost": [1, "gp"],
+        "damage": ["none"],
+        "weight": 3,
+        "properties": ["special", ["t", 5, 15]]
+      }
+  },
+    "lightArmor": {
+
+  },
+  "mediumArmor": {
+
+  },
+  "heavyArmor": {
+
+  },
+  "adventuringGear": {
+
+  },
+  "containerCapacity": {
+
+  },
+  "tools": {
+
+  },
+  "mounts": {
+
+  },
+  "tack": {
+
+  },
+  "waterborneVehicles": {
+
+  },
+  "tradeGoods": {
+
+  },
+  "lifestyleExpenses": {
+
+  },
+  "food": {
+
+  },
+  "services": {
+
+  },
+  "trinkets": {
+
+  }
+}
