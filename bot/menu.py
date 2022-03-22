@@ -23,15 +23,16 @@ def start_cmd():
 
 
 def start(update: Update, context: CallbackContext) -> int:
-    startingMenu = [[InlineKeyboardButton("New campaign", callback_data="New campaign")], [InlineKeyboardButton("Load campaign", callback_data="Load campaign")]]
+    startingMenu = [[KeyboardButton("New campaign")], [KeyboardButton("Load campaign")]]
     context.bot.send_message(chat_id=update.effective_chat.id, text="Choose whether you want to start a new campaign"
                                                                     "or load an older one.",
-                             reply_markup=InlineKeyboardMarkup(startingMenu, one_time_keyboard=True))
+                             reply_markup=ReplyKeyboardMarkup(startingMenu, one_time_keyboard=True))
     #if "New campaign" in update.message.text:
         #print('here!') #Doesn't get here!
     #    return NEWCAMPAIGN
     #if "Load campaign" in update.message.text:
     #    return LOADCAMPAIGN
+    return NEWCAMPAIGN
 
 
 def quitCampaign(update: Update, context: CallbackContext) -> int:
