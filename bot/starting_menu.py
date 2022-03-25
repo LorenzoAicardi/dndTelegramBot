@@ -51,7 +51,7 @@ def loadCampaign(update: Update, context: CallbackContext) -> int:
         replyK.append([KeyboardButton(cmp[:len(cmp)-5])])
     context.bot.send_message(chat_id=update.effective_chat.id, text="Choose the campaign you want to load!",
                              reply_markup=ReplyKeyboardMarkup(replyK, one_time_keyboard=True))
-    return CHARCREATION
+    return ConversationHandler.END
 
     # TODO: should be a RETURN GAMESTATE or whatever I decide to call the menu when the game starts
 

@@ -13,8 +13,7 @@ class Weapon:
     def getDamage(self, damage):
         return self.damage
 
-    def property(self, properties):
-
+    #def property(self, properties):
 
 
 with open("C:/Users/loren/Desktop/Università/3° anno/Progetto di ingegneria "
@@ -25,5 +24,6 @@ with open("C:/Users/loren/Desktop/Università/3° anno/Progetto di ingegneria "
 weapon = Weapon("club", data["simpleMeleeWeapons"]["club"]["cost"],
                 data["simpleMeleeWeapons"]["club"]["damage"], data["simpleMeleeWeapons"]["club"]["weight"],
                 data["simpleMeleeWeapons"]["club"]["properties"])
+
 
 #OK!
