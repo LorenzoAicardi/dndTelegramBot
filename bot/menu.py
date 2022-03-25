@@ -4,17 +4,17 @@ import os
 
 # import characterCreation
 
-NEWCAMPAIGN, LOADCAMPAIGN, NUMPLAYERS, CHARCREATION = range(4)
+CAMPAIGN, NUMPLAYERS, CHARCREATION = range(3)
 
-cwd = os.getcwd()
+dir = os.getcwd()
 
 
 def start_cmd():
     return ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            NEWCAMPAIGN: [MessageHandler(Filters.regex('^New campaign$'), newCampaign)],
-            LOADCAMPAIGN: [MessageHandler(Filters.regex('^Load campaign$'), loadCampaign)],
+            CAMPAIGN: [MessageHandler(Filters.regex('^New campaign$'), newCampaign),
+                       MessageHandler(Filters.regex('^Load campaign$'), loadCampaign)],
             NUMPLAYERS: [MessageHandler(Filters.text, numberOfPlayers)],
             CHARCREATION: [MessageHandler(Filters.text, charCreation)]
         },
@@ -27,20 +27,33 @@ def start(update: Update, context: CallbackContext) -> int:
     context.bot.send_message(chat_id=update.effective_chat.id, text="Choose whether you want to start a new campaign"
                                                                     "or load an older one.",
                              reply_markup=ReplyKeyboardMarkup(startingMenu, one_time_keyboard=True))
-    #if "New campaign" in update.message.text:
-        #print('here!') #Doesn't get here!
-    #    return NEWCAMPAIGN
-    #if "Load campaign" in update.message.text:
-    #    return LOADCAMPAIGN
-    return NEWCAMPAIGN
+    return CAMPAIGN
 
 
 def quitCampaign(update: Update, context: CallbackContext) -> int:
-    # insertstufftosavegamehere: se ho aperto una partita, la salvo, altrimenti non faccio nulla.
-    # if the game has been saved:
     context.bot.send_message(chat_id=update.effective_chat.id, text="Your game has been saved!  Press /start to "
                                                                     "load a new game.")
     return ConversationHandler.END
+
+
+def loadCampaign(update: Update, context: CallbackContext) -> int:
+    path = dir + "/campaigns"
+    if not os.path.isdir(path):
+        startingMenu = [[KeyboardButton("New campaign")], [KeyboardButton("Load campaign")]]
+        context.bot.send_message(chat_id=update.effective_chat.id, text="It appears you haven't saved a campaign yet. "
+                                                                        "Create a new one!",
+                                 reply_markup=ReplyKeyboardMarkup(startingMenu, one_time_keyboard=True))
+        return CAMPAIGN
+    os.chdir(path)
+    campaignList = os.listdir()
+    replyK = []
+    for cmp in campaignList:
+        replyK.append([KeyboardButton(cmp[:len(cmp)-5])])
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Choose the campaign you want to load!",
+                             reply_markup=ReplyKeyboardMarkup(replyK, one_time_keyboard=True))
+    return CHARCREATION
+
+    # TODO: should be a RETURN GAMESTATE or whatever I decide to call the menu when the game starts
 
 
 def newCampaign(update: Update, context: CallbackContext) -> int:
@@ -53,7 +66,7 @@ def newCampaign(update: Update, context: CallbackContext) -> int:
 
 
 def numberOfPlayers(update: Update, context: CallbackContext) -> int:
-    path = cwd + "/campaigns"
+    path = dir + "/campaigns"
     if not os.path.isdir(path):
         os.mkdir(path)
     os.chdir(path)
@@ -78,7 +91,3 @@ def charCreation(update: Update, context: CallbackContext):
         }
     )
 
-
-def loadCampaign(update: Update, context: CallbackContext) -> int:
-    if "Load campaign" in update.message.text:
-        context.bot.send_message(chat_id=update.effective_chat.id, text="Select the campaign to load.")
