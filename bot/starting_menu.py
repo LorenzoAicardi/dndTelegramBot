@@ -48,7 +48,7 @@ def loadCampaign(update: Update, context: CallbackContext) -> int:
     campaignList = os.listdir()
     replyK = []
     for cmp in campaignList:
-        replyK.append([KeyboardButton(cmp[:len(cmp)-5])])
+        replyK.append([KeyboardButton(cmp[:len(cmp)-5])]) # last five characters are ".json"
     context.bot.send_message(chat_id=update.effective_chat.id, text="Choose the campaign you want to load!",
                              reply_markup=ReplyKeyboardMarkup(replyK, one_time_keyboard=True))
     return ConversationHandler.END
