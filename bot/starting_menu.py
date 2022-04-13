@@ -1,10 +1,11 @@
+import telegram
 from telegram import *
 from telegram.ext import *
 import os
 
 # import characterCreation
 
-CAMPAIGN, NUMPLAYERS, CHARCREATION = range(3)
+CAMPAIGN, NEWCAMPAIGN, CHARCREATION = range(3)
 
 dir = os.getcwd()
 
@@ -15,7 +16,7 @@ def start_cmd():
         states={
             CAMPAIGN: [MessageHandler(Filters.regex('^New campaign$'), newCampaign),
                        MessageHandler(Filters.regex('^Load campaign$'), loadCampaign)],
-            NUMPLAYERS: [MessageHandler(Filters.text, numberOfPlayers)],
+            NEWCAMPAIGN: [MessageHandler(Filters.text, setDM)],
             CHARCREATION: [MessageHandler(Filters.text, charCreation)]
         },
         fallbacks=[CommandHandler('quit', quitCampaign)]
@@ -30,10 +31,32 @@ def start(update: Update, context: CallbackContext) -> int:
     return CAMPAIGN
 
 
-def quitCampaign(update: Update, context: CallbackContext) -> int:
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Your game has been saved!  Press /start to "
-                                                                    "load a new game.")
-    return ConversationHandler.END
+def newCampaign(update: Update, context: CallbackContext) -> int:
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Alright, a new campaign! What should we name it?")
+    return NEWCAMPAIGN
+
+
+def setDM(update: Update, context: CallbackContext) -> int:
+    path = dir + "/campaigns"
+    if not os.path.isdir(path):
+        os.mkdir(path)
+    os.chdir(path)
+    open(update.message.text + ".json", "x")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Your campaign has been created successfully!"
+                                                                    "The next user that writes a message will be "
+                                                                    "the DM.")
+    return CHARCREATION
+
+
+def charCreation(update: Update, context: CallbackContext):
+    dm = update.message.from_user
+    players = update.message.new_chat_members()
+    players.remove(dm)
+
+
+
+############LOAD CAMPAIGN##############
+
 
 
 def loadCampaign(update: Update, context: CallbackContext) -> int:
@@ -53,41 +76,11 @@ def loadCampaign(update: Update, context: CallbackContext) -> int:
                              reply_markup=ReplyKeyboardMarkup(replyK, one_time_keyboard=True))
     return ConversationHandler.END
 
+
+def quitCampaign(update: Update, context: CallbackContext) -> int:
+    context.bot.send_message(chat_id=update.effective_chat.id, text="See you next time!")
+    return ConversationHandler.END
+
     # TODO: should be a RETURN GAMESTATE or whatever I decide to call the menu when the game starts
 
-
-def newCampaign(update: Update, context: CallbackContext) -> int:
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Alright, a new campaign! Choose the number of "
-                                                                    "players that want to start this campaign. "
-                                                                    "Remember "
-                                                                    "that more players will always be able to join "
-                                                                    "later. What should we name it?")
-    return NUMPLAYERS
-
-
-def numberOfPlayers(update: Update, context: CallbackContext) -> int:
-    path = dir + "/campaigns"
-    if not os.path.isdir(path):
-        os.mkdir(path)
-    os.chdir(path)
-    open(update.message.text + ".json", "x")
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Your campaign has been created successfully!"
-                                                                    "Now input the number of players that want"
-                                                                    "to play (except the DM). Remember, newer players"
-                                                                    "can join the campaign once it has started.")
-    return CHARCREATION
-
-
-def charCreation(update: Update, context: CallbackContext):
-    try:
-        val = int(update.message.text)
-    except ValueError:
-        context.bot.send_message(chat_id=update.effective_chat.id, text="Input is not a number. Try again please")
-        return CHARCREATION
-    return ConversationHandler(  # creates a new character n times, where n is context.text
-        entry_points=[MessageHandler(Filters.text)],
-        states={
-
-        }
-    )
 

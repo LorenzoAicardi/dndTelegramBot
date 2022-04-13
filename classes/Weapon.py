@@ -1,8 +1,16 @@
 import utils
 import json
+import Wealth
 
 
 class Weapon:
+
+    name = None
+    cost = Wealth.Wealth()
+    damage = 0
+    weight = 0
+    properties = None
+
     def __init__(self, name, cost, damage, weight, properties):
         self.name = name
         self.cost = cost
