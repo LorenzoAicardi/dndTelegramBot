@@ -4,6 +4,8 @@ import random
 class Statistics:
 
     def __init__(self, lvl, xp, ins, profBonus, initiative, speed, hp, hd):
+        # the reason why I don't immediately set level, xp and profBonus to 0 is so that a character can
+        # later be added not necessarily at lvl 1, so that he can keep up with the state of the campaign.
         self.lvl = lvl,
         self.xp = xp,
         self.ins = ins,
@@ -26,16 +28,10 @@ class Statistics:
         self.wis = random.randint(1, 20)
         self.cha = random.randint(1, 20)
 
-    def setModifiers(self):  # redo
-        if self.strength >= 0:
-            self.strMod = self.strMod + 3
-        else:
-            self.strMod = self.strMod - 3
-        if self.dex >= 0:
-            self.dexMod = self.dexMod + 3
-        else:
-            self.dexMod = self.dexMod - 3
-        if self.const >= 0:
-            self.constMod = self.constMod + 3
-        else:
-            self.constMod = self.constMod - 3
+    def setModifiers(self):
+        self.strMod = int((self.strength - 10)/2)
+        self.dexMod = int((self.dex - 10)/2)
+        self.constMod = int((self.const - 10)/2)
+        self.intlMod = int((self.intl - 10)/2)
+        self.wisMod = int((self.wis - 10)/2)
+        self.chaMod = int((self.cha - 10)/2)

@@ -1,4 +1,3 @@
-
 class Monster:
 
     def __init__(self, armorClass, hp, speed, str, dex, const, intl, wis, cha, skills, senses, languages, challenge):
@@ -16,3 +15,10 @@ class Monster:
         self.languages = languages
         self.challenge = challenge
 
+    def takeDamage(self, damage: int):
+        self.hp = self.hp - damage
+
+    def heal(self, heal: int):
+        self.hp = self.hp + heal
+
+    # def dealDamage

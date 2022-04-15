@@ -1,11 +1,17 @@
 class Wealth:
 
-    def __init__(self):
-        self.cp = 0
-        self.sp = 0
-        self.ep = 0
-        self.gp = 0
-        self.pp = 0
+    cp = 0
+    sp = 0
+    ep = 0
+    gp = 0
+    pp = 0
+
+    def __init__(self, cp, sp, ep, gp, pp):
+        self.cp = cp
+        self.sp = sp
+        self.ep = ep
+        self.gp = gp
+        self.pp = pp
 
     # def convert(self):
 

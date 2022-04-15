@@ -4,6 +4,7 @@ from telegram.ext import *
 import os
 import json
 from classes import Character
+from classes import Dice
 
 menuRollback = "^d4|d8|d12|d20$"  # Complete with all the messages that make you go back to the menu
 
@@ -41,7 +42,7 @@ def loadCharacter(update: Update, context: CallbackContext) -> int:
     global character
     character = Character.Character(camp[pid]["race"], camp[pid]["class"], camp[pid]["statistics"],
                                     camp[pid]["description"], camp[pid]["equipment"])
-    return MENU  #this doesn't work: the user needs to type something in order to proceed with the game
+    return MENU  # this doesn't work: the user needs to type something in order to proceed with the game
 
 
 def menu(update: Update, context: CallbackContext) -> int:
@@ -54,23 +55,15 @@ def menu(update: Update, context: CallbackContext) -> int:
 ###########################ROLL A DICE##############################
 
 def roll(update: Update, context: CallbackContext) -> int:
-    dices = [KeyboardButton("d4"), KeyboardButton("d8"), KeyboardButton("d12"), KeyboardButton("d20")]
+    dices = [KeyboardButton("d4"), KeyboardButton("d8"), KeyboardButton("d12"), KeyboardButton("d20"),
+             KeyboardButton("d100")]
     context.bot.send_message(chat_id=update.effective_chat.id, text="Choose a dice to roll!", reply_markup=dices)
     return ROLL
 
 
 def die(update: Update, context: CallbackContext) -> int:
     dice = update.message.text
-    res = 0
-    match dice:
-        case dice.__eq__("d4"):
-            res = random.randint(1, 4)
-        case dice.__eq__("d8"):
-            res = random.randint(1, 8)
-        case dice.__eq__("d12"):
-            res = random.randint(1, 12)
-        case dice.__eq__("d20"):
-            res = random.randint(1, 20)
+    res = Dice.roll(dice, 0)
     context.bot.send_message(chat_id=update.effective_chat.id, text="You rolled a " + str(res) + "!")
     return MENU
 
@@ -128,11 +121,12 @@ def action_cmh():
 
 
 def action(update: Update, context: CallbackContext) -> int:
-    actions = [KeyboardButton("Attack"), KeyboardButton("Cast a spell"), KeyboardButton("Dash"), KeyboardButton("Disengage"),
+    actions = [KeyboardButton("Attack"), KeyboardButton("Cast a spell"), KeyboardButton("Dash"),
+               KeyboardButton("Disengage"),
                KeyboardButton("Dodge"), KeyboardButton("Help"), KeyboardButton("Hide"), KeyboardButton("Ready"),
                KeyboardButton("Search"), KeyboardButton("Use object")]
     context.bot.send_message(chat_id=update.effective_chat.id, text="What action would you like to take?",
-                             reply_markup= actions)
+                             reply_markup=actions)
     return ACTIONS
 
 
@@ -147,4 +141,3 @@ def quitCamp(update: Update, context: CallbackContext):
     json.dump(camp, loadedCamp)  # save the modified camp to loadedCamp
     loadedCamp.close()
     context.bot.send_message(chat_id=update.effective_chat.id, text="Your campaign has been saved successfully.")
-
