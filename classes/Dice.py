@@ -1,4 +1,6 @@
-import random
+from random import Random
+
+random = Random(13)
 
 
 def roll(dice: str, modifier: int):

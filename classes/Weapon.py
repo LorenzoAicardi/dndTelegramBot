@@ -28,22 +28,11 @@ class Weapon:
                 and self.damage_type == other.damage_type and self.weight == other.weight and self.properties == other.properties)
 
     def calcDamage(self):
-        numOfDices = int(self.damage_dice[0])  # number of times I will throw the dice
-        dice = self.damage_dice.lstrip(str(numOfDices))  # the type of dice I will throw
         damage_amount = 0
+        tmp = self.damage_dice.split("d")
+        numOfDices = int(tmp[0])
+        dice = "d".join(tmp[1])
         for i in range(numOfDices):
             damage_amount += Dice.roll(dice, 0)
         damage = [damage_amount, self.damage_type]
         return damage
-
-    # def property(self, properties):
-
-# with open("C:/Users/loren/Desktop/Università/3° anno/Progetto di ingegneria "
-#          "informatica/dndTelegramBot/resources/equipment.json", "r") as read_file:
-#    data = json.load(read_file)
-
-# weapon = Weapon("club", data["simpleMeleeWeapons"]["club"]["cost"],
-#                data["simpleMeleeWeapons"]["club"]["damage"], data["simpleMeleeWeapons"]["club"]["weight"],
-#                data["simpleMeleeWeapons"]["club"]["properties"])
-
-# OK!

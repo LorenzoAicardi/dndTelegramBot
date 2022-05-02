@@ -4,10 +4,11 @@ from telegram.ext import *
 import os
 
 # import characterCreation
+from classes import Character
 
-CAMPAIGN, NEWCAMPAIGN, CHARCREATION = range(3)
+CAMPAIGN, NEWCAMP, CHARCREATION, LOOP = range(4)
 
-dir = os.getcwd()
+cwd = os.getcwd()
 
 
 def start_cmd():
@@ -16,8 +17,9 @@ def start_cmd():
         states={
             CAMPAIGN: [MessageHandler(Filters.regex('^New campaign$'), newCampaign),
                        MessageHandler(Filters.regex('^Load campaign$'), loadCampaign)],
-            NEWCAMPAIGN: [MessageHandler(Filters.text, setDM)],
-            CHARCREATION: [MessageHandler(Filters.text, charCreation)]
+            NEWCAMP: [MessageHandler(Filters.text, setDM)],
+            CHARCREATION: [MessageHandler(Filters.text, charCreation)],
+            LOOP: [MessageHandler(Filters.text, creationLoop)]
         },
         fallbacks=[CommandHandler('quit', quitCampaign)]
     )
@@ -33,34 +35,42 @@ def start(update: Update, context: CallbackContext) -> int:
 
 def newCampaign(update: Update, context: CallbackContext) -> int:
     context.bot.send_message(chat_id=update.effective_chat.id, text="Alright, a new campaign! What should we name it?")
-    return NEWCAMPAIGN
+    return NEWCAMP
 
 
 def setDM(update: Update, context: CallbackContext) -> int:
-    path = dir + "/campaigns"
+    path = cwd + "/campaigns"
     if not os.path.isdir(path):
         os.mkdir(path)
     os.chdir(path)
     open(update.message.text + ".json", "x")
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Your campaign has been created successfully!"
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Your campaign has been created successfully! "
                                                                     "The next user that writes a message will be "
                                                                     "the DM.")
     return CHARCREATION
 
 
-def charCreation(update: Update, context: CallbackContext):
-    dm = update.message.from_user
-    players = update.message.new_chat_members()
-    players.remove(dm)
+def charCreation(update: Update, context: CallbackContext) -> int:
+    global dm
+    dm = update.message.from_user.username
+    context.bot.send_message(chat_id=update.effective_chat.id, text=dm + " is the Dungeon Master for this campaign.")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Users in the chat that want to play the campaign"
+                                                                    "may send a message here in chat. I will start"
+                                                                    "a private conversation asking you to create the "
+                                                                    "character, following my instructions.")
+    return LOOP
 
+
+def creationLoop(update: Update, context: CallbackContext):  # starts a private conversation with the user and creates char.
+    context.bot.send_message(chat_id=update.message.from_user.id, text="Write the name for your new character!")
+    character = Character.Character(update.message.from_user.username, update.message.text)
 
 
 ############LOAD CAMPAIGN##############
 
 
-
 def loadCampaign(update: Update, context: CallbackContext) -> int:
-    path = dir + "/campaigns"
+    path = cwd + "/campaigns"
     if not os.path.isdir(path):
         startingMenu = [[KeyboardButton("New campaign")], [KeyboardButton("Load campaign")]]
         context.bot.send_message(chat_id=update.effective_chat.id, text="It appears you haven't saved a campaign yet. "
@@ -82,5 +92,3 @@ def quitCampaign(update: Update, context: CallbackContext) -> int:
     return ConversationHandler.END
 
     # TODO: should be a RETURN GAMESTATE or whatever I decide to call the menu when the game starts
-
-
