@@ -71,20 +71,25 @@ class Monster:
             bonus_damage = []
             damage_type = []
             damage_dice = []
-            damage = []
-            for i in range(act["damage"]):
-                damage_type += act["damage"][i]["damage_type"]["index"]
-                damage_dice += act["damage"][i]["damage_dice"]
-            for i in range(len(damage_dice)):
-                bonus_damage[i] = 0
+            damage = [initial_damage]
+            for i in range(len(act["damage"])):
+                dmg_type = act["damage"][i]["damage_type"]["index"]
+                damage_type.append(dmg_type)  # list that has all the damage types dealt
+                dmg_dice = act["damage"][i]["damage_dice"]
+                damage_dice.append(dmg_dice)  # list that has all the damage dice.
+            for i in range(len(damage_dice)):  # I iterate over all the instances of damage dealt.
+                bonus_damage.append(0)
                 tmp = damage_dice[i].split("+")
-                mod = int(tmp[1])
-                tmp2 = tmp.split("d")
-                numOfTimes = int(tmp2[0])
-                dice = "d".join(tmp2[1])
-                for j in range(numOfTimes):
-                    bonus_damage[i] += Dice.roll(dice, mod)
-            damage += initial_damage
+                if len(tmp) == 2:
+                    mod = int(tmp[1])
+                else:
+                    mod = 0
+                tmp2 = tmp[0].split("d")
+                numOfTimes = int(tmp2[0])  # numOfTimes is 3
+                dice = "d"+str(tmp2[1])  # the dice is the number after the d
+                for j in range(numOfTimes):  # I roll the dice numberOfTimes times.
+                    bonus_damage[i] += Dice.roll(dice, 0)
+                bonus_damage[i] += mod
             for i in range(len(damage_type)):
                 damage += [bonus_damage[i], damage_type[i]]
             if len(damage) % 2 == 0:

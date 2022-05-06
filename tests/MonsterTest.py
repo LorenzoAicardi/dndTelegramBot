@@ -5,12 +5,16 @@ from classes import Monster
 
 class MyTestCase(unittest.TestCase):
     def test_takeDamage(self):  # TODO: COMPLETE
-        character = Character.Character("123", "Orphos")
-        character.addItem("club")
+        dmg = [10, "bludgeoning"]
         monster = Monster.Monster("ape")
-        dmg = character.useWeapon("club", 0)
         monster.takeDamage(dmg)
-        self.assertEqual()
+        self.assertEqual(9, monster.hp)
+
+    def test_attack(self):
+        monster2 = Monster.Monster("balor")
+        damage2 = monster2.attack("Whip")
+        expected_dmg2 = [14, 15, "slashing", 12, "fire"]
+        self.assertEqual(expected_dmg2, damage2)
 
 
 if __name__ == '__main__':

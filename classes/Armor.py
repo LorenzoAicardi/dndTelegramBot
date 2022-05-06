@@ -10,4 +10,3 @@ class Armor:
     armorClass: int
     strength: int
     weight: int
-

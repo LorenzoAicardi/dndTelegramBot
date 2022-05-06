@@ -1,6 +1,6 @@
 from random import Random
 
-random = Random(13)
+random = Random(4342)
 
 
 def roll(dice: str, modifier: int):
@@ -8,6 +8,8 @@ def roll(dice: str, modifier: int):
 
     if dice.__eq__("d4"):
         res = random.randint(1, 4)
+    elif dice.__eq__("d6"):
+        res = random.randint(1, 6)
     elif dice.__eq__("d8"):
         res = random.randint(1, 8)
     elif dice.__eq__("d12"):
@@ -19,3 +21,16 @@ def roll(dice: str, modifier: int):
 
     res = res + modifier
     return res
+
+
+def main():
+    res = roll("d6", 0)
+    res += roll("d6", 0)
+    res2 = roll("d6", 0)
+    res2 += roll("d6", 0)
+    res2 += roll("d6", 0)
+    print(res)
+    print(res2)
+
+if __name__ == '__main__':
+    main()

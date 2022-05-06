@@ -35,7 +35,6 @@ class Character:
         self.stats.setStats(race, _class)
         self.stats.setModifiers()
 
-
     def setInitialEquipment(self, equipment: str):  # the order is: armor, melee weapon, ranged weapons, trinkets
         eq_list = equipment.split(", ")  # still don't know whether or not the arg passed is a str or a list
         self.equipment.setInitialEquipment(self.race, self._class, eq_list)
@@ -140,92 +139,6 @@ class Character:
                 return dmg  # THIS IS A LIST, THE FIRST ELEMENT IS THE AMOUNT OF DAMAGE DEALT, THE SECOND ELEMENT IS
                 # THE TYPE OF DAMAGE DEALT
         return "No such weapon in inventory."
-
-    # def addXp(self, xp: int):
-    #     oldXp = self.stats.xp
-    #     self.stats.xp = self.stats.xp + xp
-    #
-    #     milestones = [300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000, 85000, 100000, 120000,
-    #                   140000, 165000, 195000, 225000, 265000, 305000, 355000]
-    #     for i in milestones:
-    #         if oldXp < i <= self.stats.xp:
-    #             self.lvlUp()
-    #
-    # def lvlUp(self):  # everything that happens when a character levels up.
-    #     self.stats.lvl += 1
-    #     self.stats.hd_number += 1  # player gains one hit die
-    #     self.stats.max_hp += + Dice.roll("d8", 0) + self.stats.constMod  # hp buff from level up
-    #     self.stats.hp += + Dice.roll("d8", 0) + self.stats.constMod
-    #     self.stats.lvlUpPoints += 2
-    #
-    #     # every 4 levels from the first, profBonus increases by one. (5/4 = 1 with 1 spare, 9/4 = 2 with 1 spare, ...)
-    #     if self.stats.lvl % 4 == 1:
-    #         self.stats.profBonus += 1
-    #
-    #     # TODO: ADD SPELL SLOTS PER LEVEL
-    #
-    # def lvlUpStats(self, statsUp: []):
-    #     if self.stats.lvlUpPoints == 0:
-    #         return "You can't level up any stats right now!"
-    #     else:  # TODO: LOOKS AWFUL WITH AN IF ELSE BUT I DON'T KNOW ANOTHER WAY OF DOING IT
-    #         self.stats.lvlUpPoints -= 2
-    #         for i in range(2):
-    #             if statsUp[i] == "Strength":
-    #                 self.stats.strength += 1
-    #             elif statsUp[i] == "Dexterity":
-    #                 self.stats.dex += 1
-    #             elif statsUp[i] == "Constitution":
-    #                 self.stats.const += 1
-    #             elif statsUp[i] == "Intelligence":
-    #                 self.stats.intl += 1
-    #             elif statsUp[i] == "Wisdom":
-    #                 self.stats.wis += 1
-    #             elif statsUp[i] == "Charisma":
-    #                 self.stats.cha += 1
-    #
-    #         self.stats.setModifiers()
-
-    # def shortRest(self, hd_num: int):
-    #     if hd_num > self.stats.hd_number:
-    #         return "You can't throw more hit dice than you currently have!"
-    #     self.stats.hd_number -= hd_num
-    #     hp = self.stats.constMod
-    #     for i in range(hd_num):
-    #         hp += Dice.roll(self.stats.hd, 0)
-    #     self.stats.hp += hp
-    #     return "Rest was successful."
-
-    # def longRest(self, hd_num: int):
-    #     self.stats.hp = self.stats.max_hp  # restore all hp
-    #     if hd_num > self.stats.max_hd/2:
-    #         return "You can't restore that many hit dice!"
-    #     self.stats.hd_number += hd_num
-
-    # def takeDamage(self, damage: []):
-    #     # for now, just takes into account the damage value. If needed, put damage
-    #     # type too (with respective modifier).
-    #     attempt = Dice.roll("d20", 0)
-    #     if attempt < self.stats.armClass:
-    #         return "The attack missed."
-    #     base_damage = damage[0]
-    #     total_damage = 0
-    #     for i in range(1, len(damage), 2):
-    #         if damage[i+1] in self.damage_immunities:
-    #             pass
-    #         elif damage[i+1] in self.damage_vulnerabilities:
-    #             total_damage += damage[i]*2
-    #         elif damage[i + 1] in self.damage_resistances:
-    #             total_damage += damage[i]/2
-    #         else:
-    #             total_damage += damage[i]
-    #     self.stats.hp = self.stats.hp - (base_damage + total_damage)
-    #     # TODO: make the character react accordingly in case the hp becomes <= 0.
-    #     if self.stats.hp <= 0:
-    #         msg = "Oh no! " + self.name + " has died!"
-    #         return msg
-
-    # def heal(self, heal: int):
-    #     self.stats.hp = self.stats.hp + heal
 
     def getStats(self):
         return self.stats
