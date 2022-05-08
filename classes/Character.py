@@ -18,15 +18,24 @@ from . import Statistics
 class Character:
     playerID = None
     name = None
-    stats = Statistics.Statistics(1, 0, 0, 2, 0, 0, 0, 0)
-    # description = Description.Description("", "", "", "", "", "", "", "") don't know if I have to add this
-    equipment = Equipment.Equipment()
-    race = None
-    _class = None
 
+    # description = Description.Description("", "", "", "", "", "", "", "") don't know if I have to add this
     def __init__(self, playerID: str, name: str):
         self.playerID = playerID
         self.name = name
+        self.race = None
+        self._class = None
+        self.equipment = Equipment.Equipment(Wealth.Wealth(0, 0, 0, 0, 0), [], [], [], [], [], [])
+        self.stats = Statistics.Statistics(1, 0, 0, 2, 0, 0, 0, 0)
+
+    @classmethod
+    def loadChar(cls, playerID: str, name: str, race: str, _class: str, stats: Statistics, equipment: Equipment):
+        character = cls(playerID, name)
+        character.race = race
+        character._class = _class
+        character.stats = stats
+        character.equipment = equipment
+        return character
 
     def setInitialStats(self, race: str, _class: str):  # later on armorClass will be defined
         self.race = race
@@ -39,9 +48,10 @@ class Character:
         eq_list = equipment.split(", ")  # still don't know whether or not the arg passed is a str or a list
         self.equipment.setInitialEquipment(self.race, self._class, eq_list)
 
-    def setInitialSpells(self, spells: []):
-        for i in range(len(spells)):
-            spell = Spell.Spell(spells[i])
+    def setInitialSpells(self, spells: str):
+        spell_list = spells.split(", ")
+        for i in range(len(spell_list)):
+            spell = Spell.Spell(spell_list[i])
             if spell.level != 0 or spell.level != 1:
                 return "The level of the spell is too high!"
             tmp = self.stats.curr_used_spell_slots[str(spell.level)] + 1
@@ -143,6 +153,11 @@ class Character:
     def getStats(self):
         return self.stats
 
-    def json(self):
-        return json.dumps(self.__dict__)  # returns the attributes of the class Character as a dictionary. Useful for
+    def toJson(self):
+        return json.dumps(self.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
+        # returns the attributes of the class Character as a dictionary. Useful for
         # saving the character attributes on the json file for the campaign.
+
+
+def loadChar(playerID: str, name: str, race: str, _class: str, stats: Statistics, equipment: Equipment):
+    return Character.loadChar(playerID, name, race, _class, stats, equipment)

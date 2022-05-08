@@ -1,0 +1,33 @@
+{
+  "dm": "orp26",
+  "orp26char": {
+    "playerID": "orp26",
+    "name": "Ok",
+    "race": "Human",
+    "_class": "cleric",
+    "equipment": {
+      "wealth": {
+        "cp": 0,
+        "sp": 0,
+        "ep": 0,
+        "gp": 130,
+        "pp": 0},
+      "armor": [],
+      "weapons": [
+        {
+          "name": "Mace",
+          "cost": {
+            "cp": 0, "sp": 0, "ep": 0, "gp": 5, "pp": 0
+          },
+          "damage_dice": "1d6",
+          "damage_type": "Bludgeoning",
+          "weight": 4,
+          "properties": ["Monk"]
+        }
+      ],
+      "spellCast": [],
+      "advGear": [],
+      "tools": [],
+      "spells": []
+    },
+    "stats": {"lvl": 1, "xp": 0, "ins": 0, "profBonus": 2, "initiative": 0, "speed": 0, "hp": 8, "max_hp": 8, "hd": "d8", "max_hd": 1, "armClass": 0, "strMod": 0, "dexMod": 0, "constMod": 0, "intlMod": 0, "wisMod": 0, "chaMod": 0, "hd_number": 1, "lvlUpPoints": 0, "strength": 10, "dex": 5, "const": 17, "intl": 13, "wis": 16, "cha": 4, "spell_slots": {"0": 3, "1": 2, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0}, "curr_used_spell_slots": {"0": 0, "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0}, "damage_vulnerabilities": [], "damage_resistances": [], "damage_immunities": []}}}

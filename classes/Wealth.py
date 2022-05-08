@@ -1,3 +1,6 @@
+import json
+
+
 class Wealth:
 
     cp = 0
@@ -44,3 +47,6 @@ class Wealth:
 
     def rmPp(self, pp):
         self.pp = self.pp - pp
+
+    def toJson(self):
+        return json.dumps(self.__dict__, sort_keys=True, indent=4, ensure_ascii=False)

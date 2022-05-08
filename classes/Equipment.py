@@ -5,23 +5,34 @@ from dataclasses import field
 from random import random
 from random import randint
 
-from . import Wealth, Adv_Gear, Tool
-from . import Armor
-from . import Weapon
-from . import Spell
+from classes import Wealth
+from classes import Adv_Gear
+from classes import Tool
+from classes import Armor
+from classes import Weapon
+from classes import Spell
+from classes import JSONEncoder
 
 
-@dataclass()
 class Equipment:
+    # wealth: Wealth = Wealth.Wealth(0, 0, 0, 0, 0)
+    # armor: list[Armor] = field(default_factory=list)
+    # weapons: list[Weapon] = field(default_factory=list)
+    # spellCast: list[Spell] = field(default_factory=list)
+    # advGear: list[Adv_Gear] = field(default_factory=list)
+    # tools: list[Tool] = field(default_factory=list)
+    # spells: list[Spell] = field(default_factory=list)
 
-    wealth: Wealth = Wealth.Wealth(0, 0, 0, 0, 0)
-    armor: list[Armor] = field(default_factory=list)
-    weapons: list[Weapon] = field(default_factory=list)
-    spellCast: list[Spell] = field(default_factory=list)
-    advGear: list[Adv_Gear] = field(default_factory=list)
-    tools: list[Tool] = field(default_factory=list)
-    spells: list[Spell] = field(default_factory=list)
     # trinkets: list[Weapon] = field(default_factory=list)
+
+    def __init__(self, wealth: Wealth, armor, weapons, spellCast, advGear, tools, spells):
+        self.wealth = wealth
+        self.armor = armor
+        self.weapons = weapons
+        self.spellCast = spellCast
+        self.advGear = advGear
+        self.tools = tools
+        self.spells = spells
 
     def setInitialEquipment(self, race: str, _class: str, eq_list: []):
         if _class == "cleric" or _class == "fighter":  # set initial wealth
@@ -48,7 +59,7 @@ class Equipment:
                 elif item["equipment_category"]["index"] == 'weapon':
                     properties = []  # TODO: redo according to how weapon is in the json
                     for prop in item["properties"]:
-                        properties = properties + prop["name"]
+                        properties.append(prop["name"])
                     weapon = Weapon.Weapon(item["name"], Wealth.Wealth(0, 0, 0, item["cost"]["quantity"], 0),
                                            item["damage"]["damage_dice"], item["damage"]["damage_type"]["name"],
                                            item["weight"], properties)
@@ -63,4 +74,16 @@ class Equipment:
                                      item["weight"])
                     self.tools.append(tool)
 
+    def toJson(self):
+        return json.dumps(self.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
     # def appendArmor, appendWeapon
+
+
+def main():
+    equipment: Equipment
+    equipment = Equipment(Wealth.Wealth(0, 0, 0, 0, 0), [], [], [], [], [], [])
+    print(type(equipment))
+
+
+if __name__ == "__main__":
+    main()

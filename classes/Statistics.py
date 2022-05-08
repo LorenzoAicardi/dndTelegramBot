@@ -1,8 +1,12 @@
+import json
 import random
+
+import dataclasses
 
 from classes import Dice
 
 
+@dataclasses.dataclass()
 class Statistics:
 
     def __init__(self, lvl, xp, ins, profBonus, initiative, speed, hp, hd):
@@ -18,7 +22,6 @@ class Statistics:
         self.max_hp = hp
         self.hd = hd
         self.max_hd = 1
-        self.armClass = 0
         self.strMod = 0
         self.dexMod = 0
         self.constMod = 0
@@ -27,6 +30,7 @@ class Statistics:
         self.chaMod = 0
         self.hd_number = 1
         self.lvlUpPoints = 0
+        self.armClass = 0
         self.strength = random.randint(1, 20)
         self.dex = random.randint(1, 20)
         self.const = random.randint(1, 20)
@@ -38,6 +42,36 @@ class Statistics:
         self.damage_vulnerabilities = []
         self.damage_resistances = []
         self.damage_immunities = []
+
+    @classmethod
+    def loadStats(cls,
+                  lvl, xp, ins, profBonus, initiative, speed, hp, hd,
+                  max_hd, strMod, dexMod, constMod, intlMod, wisMod, chaMod, hd_number,
+                  lvlUpPoints, strength, dex, const, intl, wis, cha, spell_slots, curr_used_spell_slots,
+                  damage_vulnerabilities, damage_resistances, damage_immunities
+                  ):
+        stats = cls(lvl, xp, ins, profBonus, initiative, speed, hp, hd)
+        stats.max_hd = max_hd
+        stats.strMod = strMod
+        stats.dexMod = dexMod
+        stats.constMod = constMod
+        stats.intlMod = intlMod
+        stats.wisMod = wisMod
+        stats.chaMod = chaMod
+        stats.hd_number = hd_number
+        stats.lvlUpPoints = lvlUpPoints
+        stats.strength = strength
+        stats.dex = dex
+        stats.const = const
+        stats.intl = intl
+        stats.wis = wis
+        stats.cha = cha
+        stats.spell_slots = spell_slots
+        stats.curr_used_spell_slots = curr_used_spell_slots
+        stats.damage_vulnerabilities = damage_vulnerabilities
+        stats.damage_resistances = damage_immunities
+        stats.damage_immunities = damage_resistances
+        return stats
 
     def setStats(self, race: str, _class: str):
         if race == "human":
@@ -84,7 +118,8 @@ class Statistics:
             self.max_hp = 6 + self.constMod
             self.hd = "d6"
             self.spell_slots = {"0": 3, "1": 2, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0}
-            self.curr_used_spell_slots = {"0": 0, "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0}
+            self.curr_used_spell_slots = {"0": 0, "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0,
+                                          "9": 0}
 
     def shortRest(self, hd_num: int):
         if hd_num > self.hd_number:
@@ -98,7 +133,7 @@ class Statistics:
 
     def longRest(self, hd_num: int):
         self.hp = self.max_hp  # restore all hp
-        if hd_num > self.max_hd/2:
+        if hd_num > self.max_hd / 2:
             return "You can't restore that many hit dice!"
         self.hd_number += hd_num
 
@@ -111,12 +146,12 @@ class Statistics:
         base_damage = damage[0]
         total_damage = 0
         for i in range(1, len(damage), 2):
-            if damage[i+1] in self.damage_immunities:
+            if damage[i + 1] in self.damage_immunities:
                 pass
-            elif damage[i+1] in self.damage_vulnerabilities:
-                total_damage += damage[i]*2
+            elif damage[i + 1] in self.damage_vulnerabilities:
+                total_damage += damage[i] * 2
             elif damage[i + 1] in self.damage_resistances:
-                total_damage += damage[i]/2
+                total_damage += damage[i] / 2
             else:
                 total_damage += damage[i]
         self.hp = self.hp - (base_damage + total_damage)
@@ -154,7 +189,7 @@ class Statistics:
     def lvlUpStats(self, statsUp: []):
         if self.lvlUpPoints == 0:
             return "You can't level up any stats right now!"
-        else:  # TODO: LOOKS AWFUL WITH AN IF ELSE BUT I DON'T KNOW ANOTHER WAY OF DOING IT
+        else:
             self.lvlUpPoints -= 2
             for i in range(2):
                 if statsUp[i] == "Strength":
@@ -173,9 +208,24 @@ class Statistics:
             self.setModifiers()
 
     def setModifiers(self):
-        self.strMod = int((self.strength - 10)/2)
-        self.dexMod = int((self.dex - 10)/2)
-        self.constMod = int((self.const - 10)/2)
-        self.intlMod = int((self.intl - 10)/2)
-        self.wisMod = int((self.wis - 10)/2)
-        self.chaMod = int((self.cha - 10)/2)
+        self.strMod = int((self.strength - 10) / 2)
+        self.dexMod = int((self.dex - 10) / 2)
+        self.constMod = int((self.const - 10) / 2)
+        self.intlMod = int((self.intl - 10) / 2)
+        self.wisMod = int((self.wis - 10) / 2)
+        self.chaMod = int((self.cha - 10) / 2)
+        self.armClass = 10 + self.dexMod
+
+    def toJson(self):
+        return json.dumps(self.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
+
+
+def loadStats(lvl, xp, ins, profBonus, initiative, speed, hp, hd,
+                  max_hd, strMod, dexMod, constMod, intlMod, wisMod, chaMod, hd_number,
+                  lvlUpPoints, strength, dex, const, intl, wis, cha, spell_slots, curr_used_spell_slots,
+                  damage_vulnerabilities, damage_resistances, damage_immunities):
+
+    return Statistics.loadStats(lvl, xp, ins, profBonus, initiative, speed, hp, hd,
+                  max_hd, strMod, dexMod, constMod, intlMod, wisMod, chaMod, hd_number,
+                  lvlUpPoints, strength, dex, const, intl, wis, cha, spell_slots, curr_used_spell_slots,
+                  damage_vulnerabilities, damage_resistances, damage_immunities)

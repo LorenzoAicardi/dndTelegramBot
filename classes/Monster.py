@@ -34,8 +34,8 @@ class Monster:
             self.hd = monster["hit_dice"]
             self.speed = monster["speed"]
             self.strength = monster["strength"]
-            self.dex = monster["constitution"]
-            self.const = monster["dexterity"]
+            self.dex = monster["dexterity"]
+            self.const = monster["constitution"]
             self.intl = monster["intelligence"]
             self.wis = monster["wisdom"]
             self.cha = monster["charisma"]
@@ -47,6 +47,29 @@ class Monster:
             self.damage_vulnerabilities = monster["damage_vulnerabilities"]
             self.damage_resistances = monster["damage_resistances"]
             self.damage_immunities = monster["damage_immunities"]
+
+    @classmethod
+    def loadMonster(cls, name, hp, hd, speed, strength, dex, const, intl, wis, cha, proficiencies, senses,
+                    languages, challenge, actions, damage_vulnerabilities, damage_resistances, damage_immunities):
+        monster = cls(name)
+        monster.hp = hp
+        monster.hd = hd
+        monster.speed = speed
+        monster.strength = strength
+        monster.dex = dex
+        monster.const = const
+        monster.intl = intl
+        monster.wis = wis
+        monster.cha = cha
+        monster.proficiencies = proficiencies
+        monster.senses = senses
+        monster.languages = languages
+        monster.challenge = challenge
+        monster.actions = actions
+        monster.damage_vulnerabilities = damage_vulnerabilities
+        monster.damage_resistances = damage_resistances
+        monster.damage_immunities = damage_immunities
+
 
     def takeDamage(self, damage: []):
         attempt = Dice.roll("d20", 0)
@@ -111,4 +134,8 @@ class Monster:
     def json(self):
         return json.dumps(self.__dict__)
 
-    # def dealDamage
+
+def loadMonster(name, hp, hd, speed, strength, dex, const, intl, wis, cha, proficiencies, senses,
+                    languages, challenge, actions, damage_vulnerabilities, damage_resistances, damage_immunities):
+    return Monster.loadMonster(name, hp, hd, speed, strength, dex, const, intl, wis, cha, proficiencies, senses,
+                    languages, challenge, actions, damage_vulnerabilities, damage_resistances, damage_immunities)
