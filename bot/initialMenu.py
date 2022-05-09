@@ -13,7 +13,7 @@ CHARCREATION, SETNAME, SETEQUIP, FINISHSPELLS, FINISHCREATION = range(5)
 
 def createChar():
     return ConversationHandler(
-        entry_points=[MessageHandler(Filters.text, charCreation)],
+        entry_points=[CommandHandler('createChar', charCreation)],  # TODO: NEED TO CHANGE FILTER
         states={
             SETNAME: [MessageHandler(Filters.text, setName)],
             SETEQUIP: [MessageHandler(Filters.text & ~Filters.regex(
@@ -38,18 +38,8 @@ def createChar():
 def charCreation(update: Update, context: CallbackContext) -> int:
     # with open(context.user_data["campaignName"] + ".json", "w") as cmp:
     #    json.dump(dm, cmp)
-    context.user_data["activeCampaign"] = dict()
-    context.user_data["activeCampaign"]["dm"] = update.message.from_user.username
-    context.bot.send_message(chat_id=update.effective_chat.id, text=update.message.from_user.username + "is the "
-                                                                                                        "Dungeon "
-                                                                                                        "Master for "
-                                                                                                        "this "
-                                                                                                        "campaign.")
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Users in the chat that want to play the campaign"
-                                                                    "may type the name of their new character here in "
-                                                                    "chat. I will start "
-                                                                    "a private conversation asking you to create the "
-                                                                    "character.")
+    context.bot.send_message(chat_id=update.message.from_user.id, text="Welcome to the character creation menu!"
+                                                                       "Write your character name.")
     return SETNAME
 
 
@@ -82,7 +72,7 @@ def setEquip(update: Update, context: CallbackContext) -> int:
     keyboard = []
     if context.user_data[update.message.from_user.username + "index"] != 0:
         context.user_data[update.message.from_user.username + "chosenEquip"].append(update.message.text)
-    if context.user_data["index"] < len(context.user_data["equipList"]):
+    if context.user_data[update.message.from_user.username + "index"] < len(context.user_data[update.message.from_user.username + "equipList"]):
         for elem in context.user_data[update.message.from_user.username + "equipList"][
             context.user_data[update.message.from_user.username + "index"]]:
             keyboard.append([KeyboardButton(elem)])
@@ -99,7 +89,7 @@ def setSpells(update: Update, context: CallbackContext) -> int:
                                                                     "or a cleric, you have the right to choose"
                                                                     "3 cantrips and 2 level 1 spells. You can write"
                                                                     "the chosen spells here, and they will be added to your inventory.")
-    return FINISHSPELLS
+    return FINISHCREATION
 
 
 def finishSetSpells(update: Update, context: CallbackContext):
@@ -108,6 +98,10 @@ def finishSetSpells(update: Update, context: CallbackContext):
 
 
 def finishCreation(update: Update, context: CallbackContext):
+
+    if character._class == "cleric" or character._class == "wizard":
+        character.setInitialSpells(update.message.text)
+
     character.equipment.setInitialEquipment(character.race, character._class,
                                             context.user_data[update.message.from_user.username + "chosenEquip"])
     charInfo = json.loads(MyEncoder().encode(character).replace("\"", '"'))

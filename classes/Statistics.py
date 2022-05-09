@@ -42,6 +42,7 @@ class Statistics:
         self.damage_vulnerabilities = []
         self.damage_resistances = []
         self.damage_immunities = []
+        self.setModifiers()
 
     @classmethod
     def loadStats(cls,

@@ -70,7 +70,6 @@ class Monster:
         monster.damage_resistances = damage_resistances
         monster.damage_immunities = damage_immunities
 
-
     def takeDamage(self, damage: []):
         attempt = Dice.roll("d20", 0)
         if attempt < self.armorClass:  # if a player rolls an attack role below the target's AC, the attack fails

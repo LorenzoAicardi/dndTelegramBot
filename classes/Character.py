@@ -51,14 +51,15 @@ class Character:
     def setInitialSpells(self, spells: str):
         spell_list = spells.split(", ")
         for i in range(len(spell_list)):
-            spell = Spell.Spell(spell_list[i])
-            if spell.level != 0 or spell.level != 1:
-                return "The level of the spell is too high!"
-            tmp = self.stats.curr_used_spell_slots[str(spell.level)] + 1
-            if tmp > self.stats.spell_slots[str(spell.level)]:
-                return "You can't add that many spells!"
-            self.equipment.spells.append(spell)
-            self.stats.curr_used_spell_slots[str(spell.level)] += 1
+            self.addSpell(spell_list[i])
+            # spell = Spell.Spell(spell_list[i])
+            # if spell.level != 0 or spell.level != 1:
+            #     return "The level of the spell is too high!"
+            # tmp = self.stats.curr_used_spell_slots[str(spell.level)] + 1
+            # if tmp > self.stats.spell_slots[str(spell.level)]:
+            #     return "You can't add that many spells!"
+            # self.equipment.spells.append(spell)
+            # self.stats.curr_used_spell_slots[str(spell.level)] += 1
 
     def addSpell(self, spell: str):
         spell = Spell.Spell(spell)
@@ -152,6 +153,10 @@ class Character:
 
     def getStats(self):
         return self.stats
+
+    def roll(self, dice: str, mod: int):
+        res = Dice.roll(dice, mod)
+        return res
 
     def toJson(self):
         return json.dumps(self.__dict__, sort_keys=True, indent=4, ensure_ascii=False)

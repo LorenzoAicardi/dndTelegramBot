@@ -10,7 +10,7 @@ equipLoop = "^Mace$|^Warhammer$|^Scale Mail$|^Leather Armor$|^Chain Mail$|^Leath
             "Pack$|^Rapier$|^Shortbow$|^Shortsword$||^Burglar's Pack$|^Dagger$|^Thieves' " \
             "Tools$|^Quarterstaff$|^Component Pouch$|^Arcane Focus$|^Scholar's Pack$|^Spellbook$"
 
-CAMPAIGN, NEWCAMP, LOADCAMP= range(3)
+CAMPAIGN, NEWCAMP, LOADCAMP, CHARCREATION = range(4)
 
 cwd = os.getcwd()
 
@@ -22,7 +22,8 @@ def start_cmd():
             CAMPAIGN: [MessageHandler(Filters.regex('^New campaign$'), newCampaign),
                        MessageHandler(Filters.regex('^Load campaign$'), loadCampaign)],
             NEWCAMP: [MessageHandler(Filters.text, setDM)],
-            LOADCAMP: [MessageHandler(Filters.text, loadCamp)]
+            LOADCAMP: [MessageHandler(Filters.text, loadCamp)],
+            CHARCREATION: [MessageHandler(Filters.text, charCreation)]
         },
         fallbacks=[CommandHandler('quit', quitCampaign)],
         per_user=False,
@@ -53,10 +54,23 @@ def setDM(update: Update, context: CallbackContext) -> int:
         os.mkdir(path)
     os.chdir(path)
     context.user_data["campaignName"] = update.message.text
-    open(context.user_data["campaignName"] + ".json", "x")
+    open(context.user_data["campaignName"] + ".json", "x")  # creates the json file with the campaign
     context.bot.send_message(chat_id=update.effective_chat.id, text="Your campaign has been created successfully! "
                                                                     "The next user that writes a message will be "
                                                                     "the DM.")
+    return CHARCREATION
+
+
+def charCreation(update: Update, context: CallbackContext) -> int:
+    context.user_data["activeCampaign"] = dict()
+    context.user_data["activeCampaign"]["dm"] = update.message.from_user.username
+    context.bot.send_message(chat_id=update.effective_chat.id, text=update.message.from_user.username + "is the "
+                                                                                                        "Dungeon "
+                                                                                                        "Master for "
+                                                                                                        "this "
+                                                                                                        "campaign.")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Players may type the command /createChar"
+                                                                    " to create a new character.")
     return ConversationHandler.END
 
 ############LOAD CAMPAIGN##############
@@ -84,6 +98,7 @@ def loadCamp(update: Update, context: CallbackContext) -> int:
     context.bot.send_message(chat_id=update.effective_chat.id, text="Loading campaign...")
     with open(update.message.text + ".json", "r") as cmp:
         campaign = json.load(cmp)
+    context.user_data["activeCampaign"] = dict()
     for key in campaign:
         if key != "dm":
             if key.endswith("char"):
@@ -106,7 +121,7 @@ def loadCamp(update: Update, context: CallbackContext) -> int:
                     campaign[key]["equipment"]["armor"], campaign[key]["equipment"]["weapons"], campaign[key]["equipment"]["spellCast"],
                     campaign[key]["equipment"]["advGear"], campaign[key]["equipment"]["tools"], campaign[key]["equipment"]["spells"])
                 character = Character.loadChar(campaign[key]["playerID"], campaign[key]["name"], campaign[key]["race"], campaign[key]["_class"], stats, equipment)
-                context.user_data[update.message.from_user.username + "char"] = character
+                context.user_data["activeCampaign"][update.message.from_user.username + "char"] = character
             else:
                 monster = Monster.loadMonster(
                     campaign[key]["name"], campaign[key]["hp"], campaign[key]["hd"],
@@ -116,8 +131,12 @@ def loadCamp(update: Update, context: CallbackContext) -> int:
                     campaign[key]["senses"], campaign[key]["languages"], campaign[key]["challenge"],
                     campaign[key]["actions"], campaign[key]["damage_vulnerabilities"],
                     campaign[key]["damage_resistances"], campaign[key]["damage_immunities"])
-                context.user_data[monster.name] = monster
+                context.user_data["activeCampaign"][monster.name + "monster"] = monster
             # IT WORKS! Now I need to put them in their spots and to assign them to the correct players.
+            # The convention is that characters end with "char" and monsters end with "monster", so that
+            # it's easier for me to save them in memory.
+    context.user_data["activeCampaign"]["dm"] = campaign["dm"]
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Campaign loaded! Enter /startCampaign to begin.")
     return ConversationHandler.END
 
 
@@ -127,7 +146,3 @@ def quitCampaign(update: Update, context: CallbackContext) -> int:
 
     # TODO: should be a RETURN GAMESTATE or whatever I decide to call the menu when the game starts
 
-######################PLAYER MENU#########################
-
-
-# def playerMenu(update: Update, context: CallbackContext):
