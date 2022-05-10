@@ -3,11 +3,12 @@ import os
 
 
 class Spell:
-    def __init__(self, name):
+    def __init__(self, name: str):
+        name = name.capitalize()
         self.name = name
         with open(os.path.dirname(os.getcwd()) + "/resources/5e-SRD-Spells.json", "r") as read_file:
             req_eq = json.load(read_file)
-        spell = next((spell for spell in req_eq if spell['index'] == name), None)
+        spell = next((spell for spell in req_eq if spell['name'] == name), None)
         if spell:
             self.level = spell["level"]
             self.classes = spell["classes"]  # array of dict of all classes that can be used

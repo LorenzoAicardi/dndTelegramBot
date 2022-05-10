@@ -8,6 +8,7 @@ from classes.JSONEncoder import MyEncoder
 
 cwd = os.getcwd()
 
+
 CHARCREATION, SETNAME, SETEQUIP, FINISHSPELLS, FINISHCREATION = range(5)
 
 
@@ -104,10 +105,10 @@ def finishCreation(update: Update, context: CallbackContext):
 
     character.equipment.setInitialEquipment(character.race, character._class,
                                             context.user_data[update.message.from_user.username + "chosenEquip"])
+    context.user_data["activeCampaign"][update.message.from_user.username + "char"] = character
     charInfo = json.loads(MyEncoder().encode(character).replace("\"", '"'))
-    context.user_data["activeCampaign"][update.message.from_user.username + "char"] = charInfo
     with open(context.user_data["campaignName"] + ".json", "a") as cmp:
-        json.dump(context.user_data["activeCampaign"], cmp)
+        json.dump(charInfo, cmp, indent=4)
     context.bot.send_message(chat_id=update.message.from_user.id, text="Ok, you're done choosing your equipment!"
                                                                        "Now write 'Done' to save your character.")
     return ConversationHandler.END

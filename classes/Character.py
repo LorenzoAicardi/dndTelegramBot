@@ -79,6 +79,7 @@ class Character:
         with open(os.path.dirname(os.getcwd()) + "/resources/5e-SRD-Equipment.json", "r") as read_file:
             req_eq = json.load(read_file)
 
+        item_name = item_name.capitalize()
         item = next((item for item in req_eq if item['name'] == item_name), None)
         if item:
             if item["equipment_category"]["index"] == 'armor':
@@ -102,6 +103,8 @@ class Character:
                                  Wealth.Wealth(0, 0, 0, item["cost"]["quantity"], 0),
                                  item["weight"])
                 self.equipment.tools.append(tool)
+            else:
+                return "No item with such nam found."
 
     def rmItem(self, item_name: str):  # TODO: DEL FROM MEMORY REQ_EQ, OR MAKE IT GLOBAL ONCE AND FOR ALL
         with open(os.path.dirname(os.getcwd()) + "/resources/5e-SRD-Equipment.json", "r") as read_file:

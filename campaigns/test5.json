@@ -1,1 +1,269 @@
-{"dm": "orp26", "orp26char": {"playerID": "orp26", "name": "guido", "race": "human", "_class": "cleric", "equipment": {"wealth": {"cp": 0, "sp": 0, "ep": 0, "gp": 100, "pp": 0}, "armor": [], "weapons": [{"name": "Warhammer", "cost": {"cp": 0, "sp": 0, "ep": 0, "gp": 15, "pp": 0}, "damage_dice": "1d8", "damage_type": "Bludgeoning", "weight": 2, "properties": ["Versatile"]}], "spellCast": [], "advGear": [], "tools": [], "spells": [{"name": "light", "level": 0, "classes": [{"index": "bard", "name": "Bard", "url": "/api/classes/bard"}, {"index": "cleric", "name": "Cleric", "url": "/api/classes/cleric"}, {"index": "sorcerer", "name": "Sorcerer", "url": "/api/classes/sorcerer"}, {"index": "wizard", "name": "Wizard", "url": "/api/classes/wizard"}]}, {"name": "mending", "level": 0, "classes": [{"index": "cleric", "name": "Cleric", "url": "/api/classes/cleric"}, {"index": "bard", "name": "Bard", "url": "/api/classes/bard"}, {"index": "druid", "name": "Druid", "url": "/api/classes/druid"}, {"index": "sorcerer", "name": "Sorcerer", "url": "/api/classes/sorcerer"}, {"index": "wizard", "name": "Wizard", "url": "/api/classes/wizard"}]}, {"name": "resistance", "level": 0, "classes": [{"index": "cleric", "name": "Cleric", "url": "/api/classes/cleric"}, {"index": "druid", "name": "Druid", "url": "/api/classes/druid"}]}, {"name": "sanctuary", "level": 1, "classes": [{"index": "cleric", "name": "Cleric", "url": "/api/classes/cleric"}]}, {"name": "shield-of-faith", "level": 1, "classes": [{"index": "cleric", "name": "Cleric", "url": "/api/classes/cleric"}, {"index": "paladin", "name": "Paladin", "url": "/api/classes/paladin"}]}]}, "stats": {"lvl": 1, "xp": 0, "ins": 0, "profBonus": 2, "initiative": 0, "speed": 30, "hp": 9, "max_hp": 9, "hd": "d8", "max_hd": 1, "strMod": 0, "dexMod": 2, "constMod": 1, "intlMod": 4, "wisMod": 1, "chaMod": 4, "hd_number": 1, "lvlUpPoints": 0, "armClass": 12, "strength": 11, "dex": 16, "const": 14, "intl": 19, "wis": 16, "cha": 19, "spell_slots": {"0": 3, "1": 2, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0}, "curr_used_spell_slots": {"0": 3, "1": 2, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0}, "damage_vulnerabilities": [], "damage_resistances": [], "damage_immunities": []}}}
+{
+    "dm": "orp26",
+    "orp26char": {
+        "playerID": "orp26",
+        "name": "guido",
+        "race": "human",
+        "_class": "cleric",
+        "equipment": {
+            "wealth": {
+                "cp": 0,
+                "sp": 0,
+                "ep": 0,
+                "gp": 100,
+                "pp": 0
+            },
+            "armor": [],
+            "weapons": [
+                {
+                    "name": "Warhammer",
+                    "cost": {
+                        "cp": 0,
+                        "sp": 0,
+                        "ep": 0,
+                        "gp": 15,
+                        "pp": 0
+                    },
+                    "damage_dice": "1d8",
+                    "damage_type": "Bludgeoning",
+                    "weight": 2,
+                    "properties": [
+                        "Versatile"
+                    ]
+                }
+            ],
+            "spellCast": [],
+            "advGear": [],
+            "tools": [],
+            "spells": [
+                {
+                    "name": "light",
+                    "level": 0,
+                    "classes": [
+                        {
+                            "index": "bard",
+                            "name": "Bard",
+                            "url": "/api/classes/bard"
+                        },
+                        {
+                            "index": "cleric",
+                            "name": "Cleric",
+                            "url": "/api/classes/cleric"
+                        },
+                        {
+                            "index": "sorcerer",
+                            "name": "Sorcerer",
+                            "url": "/api/classes/sorcerer"
+                        },
+                        {
+                            "index": "wizard",
+                            "name": "Wizard",
+                            "url": "/api/classes/wizard"
+                        }
+                    ]
+                },
+                {
+                    "name": "mending",
+                    "level": 0,
+                    "classes": [
+                        {
+                            "index": "cleric",
+                            "name": "Cleric",
+                            "url": "/api/classes/cleric"
+                        },
+                        {
+                            "index": "bard",
+                            "name": "Bard",
+                            "url": "/api/classes/bard"
+                        },
+                        {
+                            "index": "druid",
+                            "name": "Druid",
+                            "url": "/api/classes/druid"
+                        },
+                        {
+                            "index": "sorcerer",
+                            "name": "Sorcerer",
+                            "url": "/api/classes/sorcerer"
+                        },
+                        {
+                            "index": "wizard",
+                            "name": "Wizard",
+                            "url": "/api/classes/wizard"
+                        }
+                    ]
+                },
+                {
+                    "name": "resistance",
+                    "level": 0,
+                    "classes": [
+                        {
+                            "index": "cleric",
+                            "name": "Cleric",
+                            "url": "/api/classes/cleric"
+                        },
+                        {
+                            "index": "druid",
+                            "name": "Druid",
+                            "url": "/api/classes/druid"
+                        }
+                    ]
+                },
+                {
+                    "name": "sanctuary",
+                    "level": 1,
+                    "classes": [
+                        {
+                            "index": "cleric",
+                            "name": "Cleric",
+                            "url": "/api/classes/cleric"
+                        }
+                    ]
+                },
+                {
+                    "name": "shield-of-faith",
+                    "level": 1,
+                    "classes": [
+                        {
+                            "index": "cleric",
+                            "name": "Cleric",
+                            "url": "/api/classes/cleric"
+                        },
+                        {
+                            "index": "paladin",
+                            "name": "Paladin",
+                            "url": "/api/classes/paladin"
+                        }
+                    ]
+                }
+            ]
+        },
+        "stats": {
+            "lvl": 1,
+            "xp": 0,
+            "ins": 0,
+            "profBonus": 2,
+            "initiative": 0,
+            "speed": 30,
+            "hp": 9,
+            "max_hp": 9,
+            "hd": "d8",
+            "max_hd": 1,
+            "strMod": 0,
+            "dexMod": 2,
+            "constMod": 1,
+            "intlMod": 4,
+            "wisMod": 1,
+            "chaMod": 4,
+            "hd_number": 1,
+            "lvlUpPoints": 0,
+            "armClass": 11,
+            "strength": 11,
+            "dex": 16,
+            "const": 14,
+            "intl": 19,
+            "wis": 16,
+            "cha": 19,
+            "spell_slots": {
+                "0": 3,
+                "1": 2,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0,
+                "6": 0,
+                "7": 0,
+                "8": 0,
+                "9": 0
+            },
+            "curr_used_spell_slots": {
+                "0": 3,
+                "1": 2,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0,
+                "6": 0,
+                "7": 0,
+                "8": 0,
+                "9": 0
+            },
+            "damage_vulnerabilities": [],
+            "damage_resistances": [],
+            "damage_immunities": []
+        }
+    },
+    "drowmonster": {
+        "name": "drow",
+        "hp": 13,
+        "hd": "3d8",
+        "speed": {
+            "walk": "30 ft."
+        },
+        "strength": 10,
+        "dex": 14,
+        "const": 10,
+        "intl": 11,
+        "wis": 11,
+        "cha": 12,
+        "proficiencies": [
+            {
+                "value": 2,
+                "proficiency": {
+                    "index": "skill-perception",
+                    "name": "Skill: Perception",
+                    "url": "/api/proficiencies/skill-perception"
+                }
+            },
+            {
+                "value": 4,
+                "proficiency": {
+                    "index": "skill-stealth",
+                    "name": "Skill: Stealth",
+                    "url": "/api/proficiencies/skill-stealth"
+                }
+            }
+        ],
+        "senses": {
+            "darkvision": "120 ft.",
+            "passive_perception": 12
+        },
+        "languages": "Elvish, Undercommon",
+        "challenge": 0.25,
+        "actions": [
+            {
+                "name": "Shortsword",
+                "desc": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 5 (1d6 + 2) piercing damage.",
+                "attack_bonus": 4,
+                "damage": [
+                    {
+                        "damage_type": {
+                            "index": "bludgeoning",
+                            "name": "Bludgeoning",
+                            "url": "/api/damage-types/bludgeoning"
+                        },
+                        "damage_dice": "1d6+2"
+                    }
+                ]
+            },
+            {
+                "name": "Hand Crossbow",
+                "desc": "Ranged Weapon Attack: +4 to hit, range 30/120 ft., one target. Hit: 5 (1d6 + 2) piercing damage, and the target must succeed on a DC 13 Constitution saving throw or be poisoned for 1 hour. If the saving throw fails by 5 or more, the target is also unconscious while poisoned in this way. The target wakes up if it takes damage or if another creature takes an action to shake it awake.",
+                "attack_bonus": 4,
+                "damage": [
+                    {
+                        "damage_type": {
+                            "index": "piercing",
+                            "name": "Piercing",
+                            "url": "/api/damage-types/piercing"
+                        },
+                        "damage_dice": "1d6+2"
+                    }
+                ]
+            }
+        ],
+        "damage_vulnerabilities": [],
+        "damage_resistances": [],
+        "damage_immunities": []
+    }
+}

@@ -224,7 +224,7 @@ class Statistics:
 def loadStats(lvl, xp, ins, profBonus, initiative, speed, hp, hd,
                   max_hd, strMod, dexMod, constMod, intlMod, wisMod, chaMod, hd_number,
                   lvlUpPoints, strength, dex, const, intl, wis, cha, spell_slots, curr_used_spell_slots,
-                  damage_vulnerabilities, damage_resistances, damage_immunities):
+                  damage_vulnerabilities, damage_resistances, damage_immunities) -> Statistics:
 
     return Statistics.loadStats(lvl, xp, ins, profBonus, initiative, speed, hp, hd,
                   max_hd, strMod, dexMod, constMod, intlMod, wisMod, chaMod, hd_number,

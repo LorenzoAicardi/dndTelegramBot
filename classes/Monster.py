@@ -24,11 +24,12 @@ class Monster:
     damage_immunities = []
     actions = []  # array of dictionaries, one for each action
 
-    def __init__(self, name):
+    def __init__(self, name: str):
+        name = name.capitalize()
         self.name = name
         with open(os.path.dirname(os.getcwd()) + "/resources/5e-SRD-Monsters.json", "r") as read_file:
             req_eq = json.load(read_file)
-        monster = next((monster for monster in req_eq if monster['index'] == name), None)
+        monster = next((monster for monster in req_eq if monster['name'] == name), None)
         if monster:
             self.hp = monster["hit_points"]
             self.hd = monster["hit_dice"]
@@ -69,15 +70,16 @@ class Monster:
         monster.damage_vulnerabilities = damage_vulnerabilities
         monster.damage_resistances = damage_resistances
         monster.damage_immunities = damage_immunities
+        return monster
 
     def takeDamage(self, damage: []):
         attempt = Dice.roll("d20", 0)
         if attempt < self.armorClass:  # if a player rolls an attack role below the target's AC, the attack fails
             return "Your attack missed."
         if damage[1] in self.damage_vulnerabilities:
-            self.hp = self.hp - (damage[0]*2)
+            self.hp = self.hp - (damage[0] * 2)
         elif damage[1] in self.damage_resistances:
-            self.hp = self.hp - (damage[0]/2)
+            self.hp = self.hp - (damage[0] / 2)
         elif damage[1] in self.damage_immunities:
             pass
         else:
@@ -108,7 +110,7 @@ class Monster:
                     mod = 0
                 tmp2 = tmp[0].split("d")
                 numOfTimes = int(tmp2[0])  # numOfTimes is 3
-                dice = "d"+str(tmp2[1])  # the dice is the number after the d
+                dice = "d" + str(tmp2[1])  # the dice is the number after the d
                 for j in range(numOfTimes):  # I roll the dice numberOfTimes times.
                     bonus_damage[i] += Dice.roll(dice, 0)
                 bonus_damage[i] += mod
@@ -130,11 +132,17 @@ class Monster:
                     damage += self.attack(attacks[i]) + "***"  # end of first attack
                 return damage
 
-    def json(self):
-        return json.dumps(self.__dict__)
+    def roll(self, dice: str, mod: int):
+        res = Dice.roll(dice, mod)
+        return res
+
+    def toJson(self):
+        return json.dumps(self.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
 
 
 def loadMonster(name, hp, hd, speed, strength, dex, const, intl, wis, cha, proficiencies, senses,
-                    languages, challenge, actions, damage_vulnerabilities, damage_resistances, damage_immunities):
+                languages, challenge, actions, damage_vulnerabilities, damage_resistances,
+                damage_immunities) -> Monster:
     return Monster.loadMonster(name, hp, hd, speed, strength, dex, const, intl, wis, cha, proficiencies, senses,
-                    languages, challenge, actions, damage_vulnerabilities, damage_resistances, damage_immunities)
+                               languages, challenge, actions, damage_vulnerabilities, damage_resistances,
+                               damage_immunities)

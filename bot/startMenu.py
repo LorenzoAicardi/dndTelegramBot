@@ -3,7 +3,7 @@ from telegram import *
 from telegram.ext import *
 import os
 from classes import Character, Statistics, Monster, Equipment, Wealth
-from . import initialMenu
+from . import charCreationMenu
 
 equipLoop = "^Mace$|^Warhammer$|^Scale Mail$|^Leather Armor$|^Chain Mail$|^Leather Armor$|^Longbow$|^Martial " \
             "Weapon$|^Shield$|^Martial Weapon$|^Light Crossbow$|^Handaxe$|^Dungeoneer's Pack$|^Explorer's " \
@@ -136,6 +136,7 @@ def loadCamp(update: Update, context: CallbackContext) -> int:
             # The convention is that characters end with "char" and monsters end with "monster", so that
             # it's easier for me to save them in memory.
     context.user_data["activeCampaign"]["dm"] = campaign["dm"]
+    context.user_data["campaignName"] = update.message.text  # save campaign name so that I know where to save data.
     context.bot.send_message(chat_id=update.effective_chat.id, text="Campaign loaded! Enter /startCampaign to begin.")
     return ConversationHandler.END
 

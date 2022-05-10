@@ -1,6 +1,6 @@
 from random import Random
 
-random = Random(4342)
+random = Random()
 
 
 def roll(dice: str, modifier: int):
