@@ -137,7 +137,8 @@ def loadCamp(update: Update, context: CallbackContext) -> int:
             # it's easier for me to save them in memory.
     context.user_data["activeCampaign"]["dm"] = campaign["dm"]
     context.user_data["campaignName"] = update.message.text  # save campaign name so that I know where to save data.
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Campaign loaded! Enter /startCampaign to begin.")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Campaign loaded! Enter /startCampaign to begin.\n"
+                                                                    "DM, enter /startCampaignDM to open up your menu.")
     return ConversationHandler.END
 
 

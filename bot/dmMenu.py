@@ -8,13 +8,15 @@ from . import charCreationMenu
 from classes import Monster
 
 DM, DMCOMBATMENU, PLAYERMENU, RESOLVEITEMCHOICE, MONSTERSPAWNED, CHOOSEITEM, \
-CHOOSEHP, RESOLVEHPCHOICE, CHOOSETARGET, DAMAGECALC = range(10)
+CHOOSEHP, RESOLVEHPCHOICE, CHOOSETARGET, DAMAGECALC, ERROR = range(11)
 
 
 def activeCamp():
     return ConversationHandler(
-        entry_points=[CommandHandler('startCampaign', menu)],
+        entry_points=[CommandHandler('startCampaignDM', menu)],
         states={
+            ERROR: [MessageHandler(Filters.text, playerMenu)],
+
             PLAYERMENU: [MessageHandler(Filters.text, playerMenu)],  # add playermenu
 
             DM: [
@@ -40,7 +42,9 @@ def activeCamp():
             RESOLVEHPCHOICE: [MessageHandler(Filters.text, resolveHpChoice)],
             MONSTERSPAWNED: [MessageHandler(Filters.text, monsterSpawned)],
             DMCOMBATMENU: [MessageHandler(Filters.regex("^Begin combat|Done$"), dmCombatMenu),  # NEED TO FIND A WAY TO GET BACK HERE FROM DAMAGECALC
-                           MessageHandler(Filters.regex("^Make monster attack$"), monsterAttack)],
+                           MessageHandler(Filters.regex("^Make monster attack$"), monsterAttack),
+                           MessageHandler(Filters.regex("^End combat$"), dmMenu),
+                           MessageHandler(Filters.regex("^Pass$"), monsterAttack)],
             CHOOSETARGET: [MessageHandler(Filters.text, chooseTarget)],
             DAMAGECALC: [MessageHandler(Filters.text, damageCalculation)]
         },
@@ -50,14 +54,15 @@ def activeCamp():
     )
 
 
-# TODO: determine a DM function to end combat + add player menus.
+# TODO: Add player menus.
 
 
 def menu(update: Update, context: CallbackContext) -> int:
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Write anything down to pop up the menu!")
-    if update.message.from_user.username == context.user_data["activeCampaign"]["dm"]:
-        return DM
-    return PLAYERMENU
+    if update.message.from_user.username != context.user_data["activeCampaign"]["dm"]:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="You're not the DM!")
+        return ConversationHandler.END
+    context.bot.send_message(chat_id=update.effective_chat.id, text="DM, write anything down to pop up the menu!")
+    return DM
 
 
 def quitCampaign(update: Update, context: CallbackContext):
@@ -86,6 +91,11 @@ def playerMenu(update: Update, context: CallbackContext):
 
 
 def dmMenu(update: Update, context: CallbackContext) -> int:
+    if update.message.text == "End combat":
+        context.user_data.pop("combatOrder")
+        context.user_data.pop("currentPlayer")
+        context.user_data.pop("combatOrderIndex")
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Combat has been terminated.")
     menu = [[KeyboardButton("Spawn monster")],
             [KeyboardButton("Begin combat")],
             [KeyboardButton("Add item to player...")],
@@ -154,6 +164,7 @@ def chooseItem(update: Update, context: CallbackContext):
 
 
 def resolveItemChoice(update: Update, context: CallbackContext):
+    error = ""
     if context.user_data["dmChoice"] == "Add item to player...":
         chosenPlayer = context.user_data["chosenPlayer"]
         item = update.message.text
@@ -167,6 +178,10 @@ def resolveItemChoice(update: Update, context: CallbackContext):
         spell = update.message.text
         error = context.user_data["activeCampaign"][chosenPlayer + "char"].addSpell(spell)
 
+    if error != "":
+        context.bot.send_message(chat_id=update.effective_chat.id, text=error)
+    else:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="The action was successful.")
     return DM
 
 
@@ -195,12 +210,12 @@ def influence(update: Update, context: CallbackContext):
     for key in context.user_data["activeCampaign"]:  # int((self.dex - 10) / 2)
         if key.endswith("char"):
             initiative = context.user_data["activeCampaign"][key].roll("d20", context.user_data["activeCampaign"][key].stats.dexMod)
-            combatOrder.append((context.user_data["activeCampaign"][key].name, initiative))
+            combatOrder.append((context.user_data["activeCampaign"][key].name, initiative, key))
             context.bot.send_message(chat_id=update.effective_chat.id, text=
                                     context.user_data["activeCampaign"][key].name + " rolled " + str(initiative))
         if key.endswith("monster"):
             initiative = context.user_data["activeCampaign"][key].roll("d20", (context.user_data["activeCampaign"][key].dex - 10) / 2)
-            combatOrder.append((context.user_data["activeCampaign"][key].name, initiative))
+            combatOrder.append((context.user_data["activeCampaign"][key].name, initiative, key))
             context.bot.send_message(chat_id=update.effective_chat.id, text=
                                     context.user_data["activeCampaign"][key].name + " rolled " + str(initiative))
 
@@ -213,6 +228,9 @@ def influence(update: Update, context: CallbackContext):
 
     # declaring a combat order index to go through all the entities involved in combat
     context.user_data["combatOrderIndex"] = 0
+
+    # helps with determining whose turn it is.
+    context.user_data["currentPlayerKey"] = combatOrder[0][2]
 
     # sending a message to inform everyone about the combat order.
     order = []
@@ -230,11 +248,11 @@ def influence(update: Update, context: CallbackContext):
 def dmCombatMenu(update: Update, context: CallbackContext):
     if "combatOrder" not in context.user_data:
         influence(update, context)
-    else:
+    else:  # TODO: NEEDS TO BE REWORKED
         context.bot.send_message(chat_id=update.effective_chat.id, text="It's " + context.user_data["currentPlayer"] +
                                                                         "'s turn!")
 
-    keyboard = [[KeyboardButton("Make monster attack")], [KeyboardButton("Pass")]]
+    keyboard = [[KeyboardButton("Make monster attack")], [KeyboardButton("Pass")], [KeyboardButton("End combat")]]
     context.bot.send_message(chat_id=update.effective_chat.id, text="Choose an action to perform in combat.",
                              reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True))
     return DMCOMBATMENU
@@ -244,13 +262,24 @@ def monsterAttack(update: Update, context: CallbackContext):
     # the DM just needs to check if the current player isn't a player.
     # if it's not a player, then he gets a list of actions the monster can perform.
     keyboard = []
-    if not context.user_data["currentPlayer"].endswith("char"):
+    if context.user_data["currentPlayerKey"].endswith("monster"):
+        if update.message.text == "Pass":
+            context.user_data["combatOrderIndex"] = context.user_data["combatOrderIndex"] + 1
+            context.user_data["currentPlayer"] = \
+                context.user_data["combatOrder"][context.user_data["combatOrderIndex"]][0]
+            context.user_data["currentPlayerKey"] = context.user_data["combatOrder"][context.user_data["combatOrderIndex"]][2]
+            context.bot.send_message(chat_id=update.effective_chat.id, text="The DM has chosen to pass the turn. He"
+                                                                            "may type 'Done' to let other players"
+                                                                            "play.")
+            return DMCOMBATMENU
         monster = context.user_data["activeCampaign"][context.user_data["currentPlayer"] + "monster"]
         for action in monster.actions:
             keyboard.append([KeyboardButton(action["name"] + ": " + action["desc"])])
         context.bot.send_message(chat_id=update.effective_chat.id, text="Choose from this list of actions.",
                                  reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True))
         return CHOOSETARGET
+    else:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="It's not your turn yet!")
 
 
 def chooseTarget(update: Update, context: CallbackContext):
@@ -283,5 +312,6 @@ def damageCalculation(update: Update, context: CallbackContext):
     # The turn changes to the next player in the combat order list.
     context.user_data["combatOrderIndex"] = context.user_data["combatOrderIndex"] + 1
     context.user_data["currentPlayer"] = context.user_data["combatOrder"][context.user_data["combatOrderIndex"]][0]
+    context.user_data["currentPlayerKey"] = context.user_data["combatOrder"][context.user_data["combatOrderIndex"]][2]
     context.bot.send_message(chat_id=update.effective_chat.id, text="Write 'Done' to move on to the next entity's turn.")
     return DMCOMBATMENU

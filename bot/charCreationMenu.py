@@ -8,7 +8,6 @@ from classes.JSONEncoder import MyEncoder
 
 cwd = os.getcwd()
 
-
 CHARCREATION, SETNAME, SETEQUIP, FINISHSPELLS, FINISHCREATION = range(5)
 
 
@@ -73,7 +72,8 @@ def setEquip(update: Update, context: CallbackContext) -> int:
     keyboard = []
     if context.user_data[update.message.from_user.username + "index"] != 0:
         context.user_data[update.message.from_user.username + "chosenEquip"].append(update.message.text)
-    if context.user_data[update.message.from_user.username + "index"] < len(context.user_data[update.message.from_user.username + "equipList"]):
+    if context.user_data[update.message.from_user.username + "index"] < len(
+            context.user_data[update.message.from_user.username + "equipList"]):
         for elem in context.user_data[update.message.from_user.username + "equipList"][
             context.user_data[update.message.from_user.username + "index"]]:
             keyboard.append([KeyboardButton(elem)])
@@ -99,7 +99,6 @@ def finishSetSpells(update: Update, context: CallbackContext):
 
 
 def finishCreation(update: Update, context: CallbackContext):
-
     if character._class == "cleric" or character._class == "wizard":
         character.setInitialSpells(update.message.text)
 
@@ -111,6 +110,8 @@ def finishCreation(update: Update, context: CallbackContext):
         json.dump(charInfo, cmp, indent=4)
     context.bot.send_message(chat_id=update.message.from_user.id, text="Ok, you're done choosing your equipment!"
                                                                        "Now write 'Done' to save your character.")
+    context.bot.send_message(chat_id=context.user_data["Group chat id"], text=update.message.from_user.username +
+                                                                              "is done creating their character.")
     return ConversationHandler.END
 
 
