@@ -2,7 +2,7 @@ import logging
 import os
 from dotenv import load_dotenv
 from telegram.ext import Updater
-from bot import startMenu, charCreationMenu, dmMenu
+from bot import startMenu, charCreationMenu, dmMenu, playerMenu
 
 load_dotenv()
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -18,6 +18,7 @@ def main():
     dispatcher.add_handler(startMenu.start_cmd())
     dispatcher.add_handler(charCreationMenu.createChar())
     dispatcher.add_handler(dmMenu.activeCamp())
+    dispatcher.add_handler(playerMenu.playerMenu())
 
     updater.start_polling()
     updater.idle()

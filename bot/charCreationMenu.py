@@ -4,29 +4,22 @@ from telegram.ext import *
 import os
 from classes import Character
 from classes import Monster
+from classes import Equipment
 from classes.JSONEncoder import MyEncoder
 
 cwd = os.getcwd()
 
-CHARCREATION, SETNAME, SETEQUIP, FINISHSPELLS, FINISHCREATION = range(5)
+CHARCREATION, SETNAME, SETEQUIP, FINISHSPELLS, FINISHCREATION, SETSPELLS = map(chr, range(6))
 
 
 def createChar():
     return ConversationHandler(
-        entry_points=[CommandHandler('createChar', charCreation)],  # TODO: NEED TO CHANGE FILTER
+        entry_points=[CommandHandler('createChar', charCreation)],
         states={
             SETNAME: [MessageHandler(Filters.text, setName)],
-            SETEQUIP: [MessageHandler(Filters.text & ~Filters.regex(
-                "^Scale Mail|Leather Armor|Chain Mail|Dungeoneer's Pack|Explorer's Pack|Leather Armor|Dagger|Thieves' "
-                "Tools|Spellbook$ "
-            ), setEquip), MessageHandler(Filters.regex(
-                "^Dungeoneer's Pack|Explorer's Pack|Leather Armor|Dagger|Thieves' "
-                "Tools$ "
-            ), finishCreation),
-                       MessageHandler(Filters.text, setSpells), MessageHandler(Filters.regex(
-                    "^Scale Mail|Leather Armor|Chain Mail|Spellbook$"
-                ), setSpells)],
-            FINISHSPELLS: [MessageHandler(Filters.text, finishSetSpells)],
+            SETEQUIP: [MessageHandler(Filters.text & ~Filters.regex("^Done$") & ~Filters.regex("^Spells$"), setEquip),
+                       MessageHandler(Filters.regex("^Done$"), finishCreation),
+                       MessageHandler(Filters.regex("^Spells$"), setSpells)],
             FINISHCREATION: [MessageHandler(Filters.text, finishCreation)]
         },
         fallbacks=[CommandHandler('quit', quit_charCreation)],
@@ -36,9 +29,7 @@ def createChar():
 
 
 def charCreation(update: Update, context: CallbackContext) -> int:
-    # with open(context.user_data["campaignName"] + ".json", "w") as cmp:
-    #    json.dump(dm, cmp)
-    context.bot.send_message(chat_id=update.message.from_user.id, text="Welcome to the character creation menu!"
+    context.bot.send_message(chat_id=update.message.from_user.id, text="Welcome to the character creation menu! "
                                                                        "Write your character name.")
     return SETNAME
 
@@ -54,47 +45,55 @@ def setName(update: Update, context: CallbackContext):  # starts a private conve
     context.bot.send_message(chat_id=update.message.from_user.id, text="Available races: Human, Halfling, Dwarf, Elf")
     context.bot.send_message(chat_id=update.message.from_user.id,
                              text="Available classes: Fighter, Cleric, Wizard, Rogue")
-    context.user_data[update.message.from_user.username + "index"] = 0
+    context.user_data[update.message.from_user.username + "firstTime"] = True
     return SETEQUIP
 
 
-def setEquip(update: Update, context: CallbackContext) -> int:
-    if context.user_data[update.message.from_user.username + "index"] == 0:  # if the user just inserted race and class
+def setEquip(update: Update,
+             context: CallbackContext) -> int:  # TODO: WORKS, BUT IS KINDA AWFUL
+
+    if context.user_data[update.message.from_user.username + "firstTime"]:
+        # if the user just inserted race and class
         text = update.message.text
         text.lower()
         raceClass = text.split(", ")
-        character.race = raceClass[0]
-        character._class = raceClass[1]
+        character.race = raceClass[0]  # character race
+        character._class = raceClass[1]  # character class
         character.stats.setStats(raceClass[0], raceClass[1])
         context.user_data[update.message.from_user.username + "equipList"] = initEquipList(
             raceClass[1])  # returns the equipment list choice for the class.
         context.user_data[update.message.from_user.username + "chosenEquip"] = []
+        context.user_data[update.message.from_user.username + "index"] = 0
+        context.user_data[update.message.from_user.username + "firstTime"] = False
+
     keyboard = []
     if context.user_data[update.message.from_user.username + "index"] != 0:
         context.user_data[update.message.from_user.username + "chosenEquip"].append(update.message.text)
     if context.user_data[update.message.from_user.username + "index"] < len(
             context.user_data[update.message.from_user.username + "equipList"]):
-        for elem in context.user_data[update.message.from_user.username + "equipList"][
-            context.user_data[update.message.from_user.username + "index"]]:
+        for elem in \
+                context.user_data[update.message.from_user.username + "equipList"][
+                    context.user_data[update.message.from_user.username + "index"]]:
             keyboard.append([KeyboardButton(elem)])
-        context.user_data[update.message.from_user.username + "index"] = context.user_data[
-                                                                             update.message.from_user.username + "index"] + 1
         context.bot.send_message(chat_id=update.message.from_user.id, text="Choose your starting equipment.",
                                  reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True))
-        return SETEQUIP
-    return FINISHCREATION
+        context.user_data[update.message.from_user.username + "index"] = context.user_data[update.message.from_user.username + "index"] + 1
+        # the else is for when I AM DONE ITERATING
+    else:
+        context.bot.send_message(chat_id=update.message.from_user.id, text="Ok, write 'Done' to save your character. "
+                                                                           "If you chose to be either a wizard or"
+                                                                           " a cleric, please write 'Spells' to set"
+                                                                           "your spells.",
+                                 reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True))
+
+    return SETEQUIP
 
 
 def setSpells(update: Update, context: CallbackContext) -> int:
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Since you chose either to be a wizard"
-                                                                    "or a cleric, you have the right to choose"
-                                                                    "3 cantrips and 2 level 1 spells. You can write"
-                                                                    "the chosen spells here, and they will be added to your inventory.")
-    return FINISHCREATION
-
-
-def finishSetSpells(update: Update, context: CallbackContext):
-    character.setInitialSpells(update.message.text)
+    context.bot.send_message(chat_id=update.effective_chat.id, text="You have the right to choose "
+                                                                    "3 cantrips and 2 level 1 spells. You can write "
+                                                                    "the chosen spells here, "
+                                                                    "and they will be added to your inventory.")
     return FINISHCREATION
 
 
@@ -102,16 +101,28 @@ def finishCreation(update: Update, context: CallbackContext):
     if character._class == "cleric" or character._class == "wizard":
         character.setInitialSpells(update.message.text)
 
+    context.user_data["activeCampaign"] = dict()
+    print(context.user_data[update.message.from_user.username + "chosenEquip"])
     character.equipment.setInitialEquipment(character.race, character._class,
+                                            # TODO: won't work in some cases: ex, dungeoneer's pack does not have a weight.
+                                            # TODO: Also, got to handle how to add Martial Weapons in general to
+                                            # TODO: starting classes.
                                             context.user_data[update.message.from_user.username + "chosenEquip"])
     context.user_data["activeCampaign"][update.message.from_user.username + "char"] = character
     charInfo = json.loads(MyEncoder().encode(character).replace("\"", '"'))
-    with open(context.user_data["campaignName"] + ".json", "a") as cmp:
-        json.dump(charInfo, cmp, indent=4)
-    context.bot.send_message(chat_id=update.message.from_user.id, text="Ok, you're done choosing your equipment!"
-                                                                       "Now write 'Done' to save your character.")
-    context.bot.send_message(chat_id=context.user_data["Group chat id"], text=update.message.from_user.username +
-                                                                              "is done creating their character.")
+    context.user_data["charToSave"] = dict()
+    context.user_data["charToSave"][update.message.from_user.username + "char"] = charInfo
+    with open(context.bot_data["campaignName"] + ".json",
+              "r+") as file:  # TODO: CHECK IF IT WORKS WHEN ADDING MULTIPLE CHARACTERS
+        totalCamp = json.load(file)
+        file.truncate(0)
+        totalCamp.update(context.user_data["charToSave"])
+        json.dump(totalCamp, file, indent=4)
+    context.bot.send_message(chat_id=update.message.from_user.id, text="Ok, you're done choosing your equipment!")
+    context.bot.send_message(chat_id=context.bot_data["Group chat id"], text=update.message.from_user.username +
+                                                                             " is done creating their character, "
+                                                                             "and may type command /startCampaign "
+                                                                             "to open his menu.")
     return ConversationHandler.END
 
 

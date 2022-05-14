@@ -1,6 +1,6 @@
 import json
 import random
-
+import json
 import dataclasses
 
 from classes import Dice
@@ -217,6 +217,10 @@ class Statistics:
         self.chaMod = int((self.cha - 10) / 2)
         self.armClass = 10 + self.dexMod
 
+    def __iter__(self):
+        for attr, value in self.__dict__.items():
+            yield attr, value
+
     def toJson(self):
         return json.dumps(self.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
 
@@ -230,3 +234,8 @@ def loadStats(lvl, xp, ins, profBonus, initiative, speed, hp, hd,
                   max_hd, strMod, dexMod, constMod, intlMod, wisMod, chaMod, hd_number,
                   lvlUpPoints, strength, dex, const, intl, wis, cha, spell_slots, curr_used_spell_slots,
                   damage_vulnerabilities, damage_resistances, damage_immunities)
+
+
+def toString(statistics) -> str:
+    stats = statistics.toJson()
+    return stats

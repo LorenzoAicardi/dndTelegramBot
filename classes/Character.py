@@ -94,7 +94,7 @@ class Character:
                                        item["damage"]["damage_dice"], item["damage"]["damage_type"]["name"],
                                        item["weight"], properties)
                 self.equipment.weapons.append(weapon)  # same thing here
-            elif item["equipment_category"]["index"] == 'adventuring-gear':
+            elif item["equipment_category"]["index"] == 'adventuring-gear':  # TODO: REDO PACK ITEMS
                 adv_g = Adv_Gear.Adv_Gear(item["name"], item["gear_category"]["name"],
                                           Wealth.Wealth(0, 0, 0, item["cost"]["quantity"], 0), item["weight"])
                 self.equipment.advGear.append(adv_g)
@@ -104,7 +104,7 @@ class Character:
                                  item["weight"])
                 self.equipment.tools.append(tool)
             else:
-                return "No item with such nam found."
+                return "No item with such name found."
 
     def rmItem(self, item_name: str):  # TODO: DEL FROM MEMORY REQ_EQ, OR MAKE IT GLOBAL ONCE AND FOR ALL
         with open(os.path.dirname(os.getcwd()) + "/resources/5e-SRD-Equipment.json", "r") as read_file:

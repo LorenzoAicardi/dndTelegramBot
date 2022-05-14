@@ -12,6 +12,7 @@ from classes import Armor
 from classes import Weapon
 from classes import Spell
 from classes import JSONEncoder
+from classes.JSONEncoder import MyEncoder
 
 
 class Equipment:
@@ -73,10 +74,17 @@ class Equipment:
                                      Wealth.Wealth(0, 0, 0, item["cost"]["quantity"], 0),
                                      item["weight"])
                     self.tools.append(tool)
+            else:
+                pass  # need to do something here for martial weapons...
 
     def toJson(self):
         return json.dumps(self.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
-    # def appendArmor, appendWeapon
+
+
+def toString(equipment):
+    e = json.loads(MyEncoder().encode(equipment).replace("\"", '"'))
+    e = json.dumps(e)
+    return e
 
 
 def main():
