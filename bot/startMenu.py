@@ -4,7 +4,7 @@ import telegram
 from telegram import *
 from telegram.ext import *
 import os
-from classes import Character, Statistics, Monster, Equipment, Wealth
+from classes import Character, Statistics, Monster, Equipment, Wealth, Weapon, Armor, Adv_Gear, Pack, Spell, Tool
 from . import charCreationMenu
 
 # equipLoop = "^Mace$|^Warhammer$|^Scale Mail$|^Leather Armor$|^Chain Mail$|^Leather Armor$|^Longbow$|^Martial " \
@@ -35,8 +35,6 @@ def start_cmd():
 
 def start(update: Update, context: CallbackContext) -> int:
     context.bot_data["Group chat id"] = update.effective_chat.id
-    if "activeCampaign" in context.chat_data:  # THIS FUCKING WORKS
-        print(context.bot_data["activeCampaign"])
     startingMenu = [[KeyboardButton("New campaign")], [KeyboardButton("Load campaign")]]
     context.bot.send_message(chat_id=context.bot_data["Group chat id"],
                              text="Choose whether you want to start a new campaign"
@@ -55,6 +53,7 @@ def setDM(update: Update, context: CallbackContext) -> int:
     path = cwd + "/campaigns"
     if not os.path.isdir(path):
         os.mkdir(path)
+        print("here")
     os.chdir(path)
     context.bot_data["campaignName"] = update.message.text
     open(context.bot_data["campaignName"] + ".json", "x")  # creates the json file with the campaign
@@ -86,7 +85,7 @@ def charCreation(update: Update, context: CallbackContext) -> int:
 def loadCampaign(update: Update, context: CallbackContext) -> int:
     context.bot_data["newCampaign"] = False
     path = cwd + "/campaigns"
-    if not os.path.isdir(path):
+    if not os.path.isdir(path) or not os.listdir():
         startingMenu = [[KeyboardButton("New campaign")], [KeyboardButton("Load campaign")]]
         context.bot.send_message(chat_id=update.effective_chat.id, text="It appears you haven't saved a campaign yet. "
                                                                         "Create a new one!",
@@ -126,19 +125,59 @@ def loadCamp(update: Update, context: CallbackContext) -> int:
                     campaign[key]["stats"]["curr_used_spell_slots"], campaign[key]["stats"]["damage_vulnerabilities"],
                     campaign[key]["stats"]["damage_resistances"], campaign[key]["stats"]["damage_immunities"]
                 )
+
+                # initialize weapons
+                weapons = []
+                for w in campaign[key]["equipment"]["weapons"]:
+                    properties = []
+                    for prop in w["properties"]:
+                        properties.append(prop)
+                    wp = Weapon.Weapon(w["name"], Wealth.Wealth(0, 0, 0, w["cost"]["gp"], 0), w["damage_dice"],
+                                       w["damage_type"], w["weight"], properties)
+                    weapons.append(wp)
+                # initialize armor
+                armor = []
+                for a in campaign[key]["equipment"]["armor"]:
+                    arm = Armor.Armor(a["name"], Wealth.Wealth(0, 0, 0, a["cost"]["gp"], 0), a["armorClass"],
+                                      a["strength"], a["weight"])
+                    armor.append(arm)
+                # initialize advGear
+                advGear = []
+                for ad in campaign[key]["equipment"]["advGear"]:
+                    if ad["gear_category"] == "Equipment Packs":
+                        adv = Pack.Pack(ad["name"], Wealth.Wealth(0, 0, 0, ad["cost"]["gp"], 0), ad["gear_category"],
+                                        ad["contents"])
+                    else:
+                        adv = Adv_Gear.Adv_Gear(ad["name"], ad["gear_category"]["name"],
+                                                Wealth.Wealth(0, 0, 0, ad["cost"]["gp"], 0),
+                                                ad["weight"])
+                    advGear.append(adv)
+                # initialize spells
+                spells = []
+                if campaign[key]["_class"] == "cleric" or campaign[key]["_class"] == "wizard":
+                    for s in campaign[key]["equipment"]["spells"]:
+                        spell = Spell.Spell(s["name"])
+                        spells.append(spell)
+
+                # initialize tools
+                tools = []
+                for t in campaign[key]["equipment"]["tools"]:
+                    tool = Tool.Tool(t["name"], t["tool_cat"], Wealth.Wealth(0, 0, 0, t["cost"]["gp"], 0), t["weight"])
+                    tools.append(tool)
+
                 equipment = Equipment.Equipment(Wealth.Wealth(
                     campaign[key]["equipment"]["wealth"]["cp"],
                     campaign[key]["equipment"]["wealth"]["sp"],
                     campaign[key]["equipment"]["wealth"]["ep"], campaign[key]["equipment"]["wealth"]["gp"],
                     campaign[key]["equipment"]["wealth"]["pp"]
                 ),
-                    campaign[key]["equipment"]["armor"], campaign[key]["equipment"]["weapons"],
+                    armor, weapons,
                     campaign[key]["equipment"]["spellCast"],
-                    campaign[key]["equipment"]["advGear"], campaign[key]["equipment"]["tools"],
-                    campaign[key]["equipment"]["spells"])
+                    advGear, tools,
+                    spells)
                 character = Character.loadChar(campaign[key]["playerID"], campaign[key]["name"], campaign[key]["race"],
                                                campaign[key]["_class"], stats, equipment)
-                context.chat_data["activeCampaign"][update.message.from_user.username + "char"] = character
+                context.chat_data["activeCampaign"][key] = character
             else:
                 monster = Monster.loadMonster(
                     campaign[key]["name"], campaign[key]["hp"], campaign[key]["hd"],
@@ -148,12 +187,12 @@ def loadCamp(update: Update, context: CallbackContext) -> int:
                     campaign[key]["senses"], campaign[key]["languages"], campaign[key]["challenge"],
                     campaign[key]["actions"], campaign[key]["damage_vulnerabilities"],
                     campaign[key]["damage_resistances"], campaign[key]["damage_immunities"])
-                context.chat_data["activeCampaign"][monster.name + "monster"] = monster
+                context.chat_data["activeCampaign"][key] = monster
             # IT WORKS! Now I need to put them in their spots and to assign them to the correct players.
             # The convention is that characters end with "char" and monsters end with "monster", so that
             # it's easier for me to save them in memory.
     context.chat_data["activeCampaign"]["dm"] = campaign["dm"]
-    context.chat_data["campaignName"] = update.message.text  # save campaign name so that I know where to save data.
+    context.bot_data["campaignName"] = update.message.text  # save campaign name so that I know where to save data.
     context.bot.send_message(chat_id=update.effective_chat.id, text="Campaign loaded! Enter /startCampaign to begin.\n"
                                                                     "DM, enter /startCampaignDM to open up your menu.")
     return ConversationHandler.END

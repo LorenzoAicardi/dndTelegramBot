@@ -17,9 +17,9 @@ def createChar():
         entry_points=[CommandHandler('createChar', charCreation)],
         states={
             SETNAME: [MessageHandler(Filters.text, setName)],
-            SETEQUIP: [MessageHandler(Filters.text & ~Filters.regex("^Done$") & ~Filters.regex("^Spells$"), setEquip),
-                       MessageHandler(Filters.regex("^Done$"), finishCreation),
-                       MessageHandler(Filters.regex("^Spells$"), setSpells)],
+            SETEQUIP: [MessageHandler(Filters.text & ~Filters.regex("^Done|done$") & ~Filters.regex("^Spells|spells$"), setEquip),
+                       MessageHandler(Filters.regex("^Done|done$"), finishCreation),
+                       MessageHandler(Filters.regex("^Spells|spells$"), setSpells)],
             FINISHCREATION: [MessageHandler(Filters.text, finishCreation)]
         },
         fallbacks=[CommandHandler('quit', quit_charCreation)],
@@ -30,7 +30,9 @@ def createChar():
 
 def charCreation(update: Update, context: CallbackContext) -> int:
     context.bot.send_message(chat_id=update.message.from_user.id, text="Welcome to the character creation menu! "
-                                                                       "Write your character name.")
+                                                                       "Write your character name. You can quit "
+                                                                       "character creation at any time by "
+                                                                       "typing command /quit.")
     return SETNAME
 
 
@@ -55,8 +57,11 @@ def setEquip(update: Update,
     if context.user_data[update.message.from_user.username + "firstTime"]:
         # if the user just inserted race and class
         text = update.message.text
-        text.lower()
+        text = text.lower()
+        # TODO: use strip on the 2 substrings.
         raceClass = text.split(", ")
+        raceClass[0] = raceClass[0].strip()
+        raceClass[1] = raceClass[1].strip()
         character.race = raceClass[0]  # character race
         character._class = raceClass[1]  # character class
         character.stats.setStats(raceClass[0], raceClass[1])
@@ -77,12 +82,13 @@ def setEquip(update: Update,
             keyboard.append([KeyboardButton(elem)])
         context.bot.send_message(chat_id=update.message.from_user.id, text="Choose your starting equipment.",
                                  reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True))
-        context.user_data[update.message.from_user.username + "index"] = context.user_data[update.message.from_user.username + "index"] + 1
+        context.user_data[update.message.from_user.username + "index"] = context.user_data[
+                                                                             update.message.from_user.username + "index"] + 1
         # the else is for when I AM DONE ITERATING
     else:
         context.bot.send_message(chat_id=update.message.from_user.id, text="Ok, write 'Done' to save your character. "
                                                                            "If you chose to be either a wizard or"
-                                                                           " a cleric, please write 'Spells' to set"
+                                                                           " a cleric, please write 'Spells' to set "
                                                                            "your spells.",
                                  reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True))
 
@@ -102,18 +108,17 @@ def finishCreation(update: Update, context: CallbackContext):
         character.setInitialSpells(update.message.text)
 
     context.user_data["activeCampaign"] = dict()
-    print(context.user_data[update.message.from_user.username + "chosenEquip"])
-    character.equipment.setInitialEquipment(character.race, character._class,
-                                            # TODO: won't work in some cases: ex, dungeoneer's pack does not have a weight.
-                                            # TODO: Also, got to handle how to add Martial Weapons in general to
-                                            # TODO: starting classes.
-                                            context.user_data[update.message.from_user.username + "chosenEquip"])
+    noItem = character.equipment.setInitialEquipment(character.race, character._class,
+                                                     context.user_data[
+                                                         update.message.from_user.username + "chosenEquip"])
+    if noItem != "":
+        context.bot.send_message(chat_id=update.effective_chat.id, text=noItem)
     context.user_data["activeCampaign"][update.message.from_user.username + "char"] = character
     charInfo = json.loads(MyEncoder().encode(character).replace("\"", '"'))
     context.user_data["charToSave"] = dict()
     context.user_data["charToSave"][update.message.from_user.username + "char"] = charInfo
-    with open(context.bot_data["campaignName"] + ".json",
-              "r+") as file:  # TODO: CHECK IF IT WORKS WHEN ADDING MULTIPLE CHARACTERS
+    with open(context.bot_data["campaignName"] + ".json", "r+") as file:
+        # TODO: CHECK IF IT WORKS WHEN ADDING MULTIPLE CHARACTERS
         totalCamp = json.load(file)
         file.truncate(0)
         totalCamp.update(context.user_data["charToSave"])
@@ -127,12 +132,13 @@ def finishCreation(update: Update, context: CallbackContext):
 
 
 def initEquipList(_class: str):
+    _class = _class.lower()
     if _class == "cleric":
         return [["Mace", "Warhammer"], ["Scale Mail", "Leather Armor", "Chain Mail"]]
 
     if _class == "fighter":
         return [["Chain Mail", "Leather Armor, Longbow"], ["Martial Weapon, Shield", "Martial Weapon, Martial Weapon"],
-                ["Light Crossbow", "Handaxe, Handaxe"], ["Dungeoneer's Pack", "Explorer's Pack"]]
+                ["Crossbow, Light", "Handaxe, Handaxe"], ["Dungeoneer's Pack", "Explorer's Pack"]]
 
     if _class == "rogue":
         return [["Rapier", "Shortbow"], ["Shortbow", "Shortsword"],

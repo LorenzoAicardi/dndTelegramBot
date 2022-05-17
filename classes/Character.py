@@ -1,4 +1,4 @@
-from . import Adv_Gear, Spell
+from . import Adv_Gear, Spell, Pack
 from . import Armor
 from . import Tool
 from . import Wealth
@@ -46,7 +46,8 @@ class Character:
 
     def setInitialEquipment(self, equipment: str):  # the order is: armor, melee weapon, ranged weapons, trinkets
         eq_list = equipment.split(", ")  # still don't know whether or not the arg passed is a str or a list
-        self.equipment.setInitialEquipment(self.race, self._class, eq_list)
+        noItem = self.equipment.setInitialEquipment(self.race, self._class, eq_list)
+        return noItem
 
     def setInitialSpells(self, spells: str):
         spell_list = spells.split(", ")
@@ -95,8 +96,12 @@ class Character:
                                        item["weight"], properties)
                 self.equipment.weapons.append(weapon)  # same thing here
             elif item["equipment_category"]["index"] == 'adventuring-gear':  # TODO: REDO PACK ITEMS
-                adv_g = Adv_Gear.Adv_Gear(item["name"], item["gear_category"]["name"],
-                                          Wealth.Wealth(0, 0, 0, item["cost"]["quantity"], 0), item["weight"])
+                if item["gear_category"]["name"] == "Equipment Packs":
+                    adv_g = Pack.Pack(item["name"], Wealth.Wealth(0, 0, 0, item["cost"]["quantity"], 0), item["gear_category"],
+                                      item["contents"])
+                else:
+                    adv_g = Adv_Gear.Adv_Gear(item["name"], item["gear_category"]["name"],
+                                              Wealth.Wealth(0, 0, 0, item["cost"]["quantity"], 0), item["weight"])
                 self.equipment.advGear.append(adv_g)
             elif item["equipment_category"]["index"] == 'tools':
                 tool = Tool.Tool(item["name"], item["tool_category"]["name"],

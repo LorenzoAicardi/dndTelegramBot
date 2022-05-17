@@ -1,7 +1,7 @@
 import utils
 import json
-from . import Wealth
-from . import Dice
+from classes import Wealth
+from classes import Dice
 
 
 class Weapon:
@@ -29,10 +29,12 @@ class Weapon:
 
     def calcDamage(self):
         damage_amount = 0
-        tmp = self.damage_dice.split("d")
+        tmp = self.damage_dice.split("d")  # tmp = [numofTimes, damage type]
         numOfDices = int(tmp[0])
-        dice = "d".join(tmp[1])
+        dice = "d" + tmp[1]
         for i in range(numOfDices):
             damage_amount += Dice.roll(dice, 0)
         damage = [damage_amount, self.damage_type]
         return damage
+
+

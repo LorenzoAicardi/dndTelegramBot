@@ -1,0 +1,239 @@
+{
+    "dm": "orp26",
+    "Agathokleschar": {
+        "playerID": "Agathokles",
+        "name": "TestA",
+        "race": "Dwarf",
+        "_class": "Fighter",
+        "equipment": {
+            "wealth": {
+                "cp": 0,
+                "sp": 0,
+                "ep": 0,
+                "gp": 0,
+                "pp": 0
+            },
+            "armor": [
+                {
+                    "name": "Chain Mail",
+                    "cost": {
+                        "cp": 0,
+                        "sp": 0,
+                        "ep": 0,
+                        "gp": 75,
+                        "pp": 0
+                    },
+                    "armorClass": 16,
+                    "strength": 13,
+                    "weight": 55
+                }
+            ],
+            "weapons": [
+                {
+                    "name": "Whip",
+                    "cost": {
+                        "cp": 0,
+                        "sp": 2,
+                        "ep": 0,
+                        "gp": 0,
+                        "pp": 0
+                    },
+                    "damage_dice": "1d4",
+                    "damage_type": "Slashing",
+                    "weight": 3,
+                    "properties": [
+                        "Finesse",
+                        "Reach"
+                    ]
+                }
+            ],
+            "spellCast": [],
+            "advGear": [
+                {
+                    "name": "Explorer's Pack",
+                    "cost": {
+                        "cp": 0,
+                        "sp": 0,
+                        "ep": 0,
+                        "gp": 10,
+                        "pp": 0
+                    },
+                    "gear_category": "Equipment Packs",
+                    "contents": [
+                        {
+                            "item": {
+                                "index": "backpack",
+                                "name": "Backpack",
+                                "url": "/api/equipment/backpack"
+                            },
+                            "quantity": 1
+                        },
+                        {
+                            "item": {
+                                "index": "bedroll",
+                                "name": "Bedroll",
+                                "url": "/api/equipment/bedroll"
+                            },
+                            "quantity": 1
+                        },
+                        {
+                            "item": {
+                                "index": "mess-kit",
+                                "name": "Mess Kit",
+                                "url": "/api/equipment/mess-kit"
+                            },
+                            "quantity": 1
+                        },
+                        {
+                            "item": {
+                                "index": "tinderbox",
+                                "name": "Tinderbox",
+                                "url": "/api/equipment/tinderbox"
+                            },
+                            "quantity": 1
+                        },
+                        {
+                            "item": {
+                                "index": "torch",
+                                "name": "Torch",
+                                "url": "/api/equipment/torch"
+                            },
+                            "quantity": 10
+                        },
+                        {
+                            "item": {
+                                "index": "rations-1-day",
+                                "name": "Rations (1 day)",
+                                "url": "/api/equipment/rations-1-day"
+                            },
+                            "quantity": 10
+                        },
+                        {
+                            "item": {
+                                "index": "waterskin",
+                                "name": "Waterskin",
+                                "url": "/api/equipment/waterskin"
+                            },
+                            "quantity": 1
+                        },
+                        {
+                            "item": {
+                                "index": "rope-hempen-50-feet",
+                                "name": "Rope, hempen (50 feet)",
+                                "url": "/api/equipment/rope-hempen-50-feet"
+                            },
+                            "quantity": 1
+                        }
+                    ]
+                }
+            ],
+            "tools": [],
+            "spells": []
+        },
+        "stats": {
+            "lvl": 1,
+            "xp": 0,
+            "ins": 0,
+            "profBonus": 2,
+            "initiative": 0,
+            "speed": 0,
+            "hp": 0,
+            "max_hp": 0,
+            "hd": 0,
+            "max_hd": 1,
+            "strMod": -3,
+            "dexMod": -3,
+            "constMod": -1,
+            "intlMod": 0,
+            "wisMod": 0,
+            "chaMod": -2,
+            "hd_number": 1,
+            "lvlUpPoints": 0,
+            "armClass": 12,
+            "strength": 4,
+            "dex": 3,
+            "const": 7,
+            "intl": 10,
+            "wis": 11,
+            "cha": 6,
+            "spell_slots": {},
+            "curr_used_spell_slots": {},
+            "damage_vulnerabilities": [],
+            "damage_resistances": [],
+            "damage_immunities": []
+        }
+    },
+    "Drowmonster": {
+        "name": "Drow",
+        "hp": 9,
+        "hd": "3d8",
+        "speed": {
+            "walk": "30 ft."
+        },
+        "strength": 10,
+        "dex": 14,
+        "const": 10,
+        "intl": 11,
+        "wis": 11,
+        "cha": 12,
+        "proficiencies": [
+            {
+                "value": 2,
+                "proficiency": {
+                    "index": "skill-perception",
+                    "name": "Skill: Perception",
+                    "url": "/api/proficiencies/skill-perception"
+                }
+            },
+            {
+                "value": 4,
+                "proficiency": {
+                    "index": "skill-stealth",
+                    "name": "Skill: Stealth",
+                    "url": "/api/proficiencies/skill-stealth"
+                }
+            }
+        ],
+        "senses": {
+            "darkvision": "120 ft.",
+            "passive_perception": 12
+        },
+        "languages": "Elvish, Undercommon",
+        "challenge": 0.25,
+        "actions": [
+            {
+                "name": "Shortsword",
+                "desc": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 5 (1d6 + 2) piercing damage.",
+                "attack_bonus": 4,
+                "damage": [
+                    {
+                        "damage_type": {
+                            "index": "bludgeoning",
+                            "name": "Bludgeoning",
+                            "url": "/api/damage-types/bludgeoning"
+                        },
+                        "damage_dice": "1d6+2"
+                    }
+                ]
+            },
+            {
+                "name": "Hand Crossbow",
+                "desc": "Ranged Weapon Attack: +4 to hit, range 30/120 ft., one target. Hit: 5 (1d6 + 2) piercing damage, and the target must succeed on a DC 13 Constitution saving throw or be poisoned for 1 hour. If the saving throw fails by 5 or more, the target is also unconscious while poisoned in this way. The target wakes up if it takes damage or if another creature takes an action to shake it awake.",
+                "attack_bonus": 4,
+                "damage": [
+                    {
+                        "damage_type": {
+                            "index": "piercing",
+                            "name": "Piercing",
+                            "url": "/api/damage-types/piercing"
+                        },
+                        "damage_dice": "1d6+2"
+                    }
+                ]
+            }
+        ],
+        "damage_vulnerabilities": [],
+        "damage_resistances": [],
+        "damage_immunities": []
+    }
+}

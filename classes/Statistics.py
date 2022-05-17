@@ -142,24 +142,27 @@ class Statistics:
         # for now, just takes into account the damage value. If needed, put damage
         # type too (with respective modifier).
         attempt = Dice.roll("d20", 0)
+        message = "D20 result: " + str(attempt) + "Player Armor Class: " + str(self.armClass) + "."
         if attempt < self.armClass:
-            return "The attack missed."
+            message += "The attack missed."
+            return message
         base_damage = damage[0]
         total_damage = 0
         for i in range(1, len(damage), 2):
             if damage[i + 1] in self.damage_immunities:
+                message += " The player is immune to this kind of damage (" + damage[i + 1] + ")."
                 pass
             elif damage[i + 1] in self.damage_vulnerabilities:
+                message += " Critical damage! The monster is weak to this kind of damage (" + damage[i + 1] + ")."
                 total_damage += damage[i] * 2
             elif damage[i + 1] in self.damage_resistances:
+                message += " The player is resistant to this kind of damage (" + damage[i + 1] + ")."
                 total_damage += damage[i] / 2
             else:
                 total_damage += damage[i]
         self.hp = self.hp - (base_damage + total_damage)
-        # TODO: make the character react accordingly in case the hp becomes <= 0.
-        if self.hp <= 0:
-            msg = "Oh no! " + "player" + " has died!"
-            return msg
+        message += " Player remaining health: " + str(self.hp)
+        return message
 
     def heal(self, heal: int):
         self.hp = self.hp + heal
@@ -193,17 +196,17 @@ class Statistics:
         else:
             self.lvlUpPoints -= 2
             for i in range(2):
-                if statsUp[i] == "Strength":
+                if statsUp[i] == "strength":
                     self.strength += 1
-                elif statsUp[i] == "Dexterity":
+                elif statsUp[i] == "dexterity":
                     self.dex += 1
-                elif statsUp[i] == "Constitution":
+                elif statsUp[i] == "constitution":
                     self.const += 1
-                elif statsUp[i] == "Intelligence":
+                elif statsUp[i] == "intelligence":
                     self.intl += 1
-                elif statsUp[i] == "Wisdom":
+                elif statsUp[i] == "wisdom":
                     self.wis += 1
-                elif statsUp[i] == "Charisma":
+                elif statsUp[i] == "charisma":
                     self.cha += 1
 
             self.setModifiers()
@@ -238,4 +241,9 @@ def loadStats(lvl, xp, ins, profBonus, initiative, speed, hp, hd,
 
 def toString(statistics) -> str:
     stats = statistics.toJson()
+    stats = stats.replace("{", "")
+    stats = stats.replace("}", "")
+    stats = stats.replace('"', '')
+    stats = stats.replace("[", "")
+    stats = stats.replace("]", "")
     return stats

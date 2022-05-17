@@ -74,16 +74,69 @@ class Monster:
 
     def takeDamage(self, damage: []):
         attempt = Dice.roll("d20", 0)
+        message = "D20 result: " + str(attempt) + self.name + " Armor Class: " + str(self.armorClass) + "."
         if attempt < self.armorClass:  # if a player rolls an attack role below the target's AC, the attack fails
-            return "Your attack missed."
+            message += " Your attack missed."
+            return message
+        message += " Previous hp: " + str(self.hp)
         if damage[1] in self.damage_vulnerabilities:
             self.hp = self.hp - (damage[0] * 2)
+            message += " Critical damage! The monster is weak to this kind of damage (" + damage[1] + ")."
         elif damage[1] in self.damage_resistances:
             self.hp = self.hp - (damage[0] / 2)
+            message += " The monster is resistant to this kind of damage (" + damage[1] + ")."
         elif damage[1] in self.damage_immunities:
+            message += " The monster is immune to this kind of damage (" + damage[1] + ")."
             pass
         else:
             self.hp = self.hp - damage[0]
+        message += " Monster remaining health: " + str(self.hp)
+        return message
+
+    def takeDamageAdv(self, damage: [], adv: bool):
+        # True for advantage, False for disadvantage.
+        if adv:
+            attempt1 = Dice.roll("d20", 0)
+            attempt2 = Dice.roll("d20", 0)
+            message = "First roll result: " + str(attempt1) + ", second roll result: " + str(attempt2) + ". "
+            if attempt2 > attempt1:
+                attempt = attempt2
+                message += "Using " + str(attempt)
+            else:
+                attempt = attempt1
+                message += "Using " + str(attempt)
+            message += "D20 result: " + str(attempt) + self.name + " Armor Class: " + str(self.armorClass) + "."
+            if attempt < self.armorClass:  # if a player rolls an attack role below the target's AC, the attack fails
+                message += " Your attack missed."
+                return message
+        else:
+            attempt1 = Dice.roll("d20", 0)
+            attempt2 = Dice.roll("d20", 0)
+            message = "First roll result: " + str(attempt1) + ", second roll result: " + str(attempt2) + ". "
+            if attempt2 < attempt1:
+                attempt = attempt2
+                message += "Using " + str(attempt)
+            else:
+                attempt = attempt1
+                message += "Using " + str(attempt)
+            message += "D20 result: " + str(attempt) + self.name + " Armor Class: " + str(self.armorClass) + "."
+            if attempt < self.armorClass:  # if a player rolls an attack role below the target's AC, the attack fails
+                message += " Your attack missed."
+                return message
+
+        if damage[1] in self.damage_vulnerabilities:
+            message += " Critical damage! The monster is weak to this kind of damage (" + damage[1] + ")."
+            self.hp = self.hp - (damage[0] * 2)
+        elif damage[1] in self.damage_resistances:
+            self.hp = self.hp - (damage[0] / 2)
+            message += " The monster is resistant to this kind of damage (" + damage[1] + ")."
+        elif damage[1] in self.damage_immunities:
+            message += " The monster is immune to this kind of damage (" + damage[1] + ")."
+            pass
+        else:
+            self.hp = self.hp - damage[0]
+        message += " Monster remaining health: " + str(self.hp)
+        return message
 
     def heal(self, heal: int):
         self.hp = self.hp + heal

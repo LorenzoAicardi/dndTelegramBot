@@ -13,6 +13,7 @@ from classes import Weapon
 from classes import Spell
 from classes import JSONEncoder
 from classes.JSONEncoder import MyEncoder
+from classes import Pack
 
 
 class Equipment:
@@ -50,6 +51,8 @@ class Equipment:
         with open(os.path.dirname(os.getcwd()) + "/resources/5e-SRD-Equipment.json", "r") as read_file:
             req_eq = json.load(read_file)  # THIS IS AN ARRAY OF DICTS
 
+        noItem = ""
+
         for i in range(len(eq_list)):
             item = next(iter(item for item in req_eq if item['name'] == eq_list[i]), None)
             if item:
@@ -66,7 +69,11 @@ class Equipment:
                                            item["weight"], properties)
                     self.weapons.append(weapon)  # same thing here
                 elif item["equipment_category"]["index"] == 'adventuring-gear':
-                    adv_g = Adv_Gear.Adv_Gear(item["name"], item["gear_category"]["name"],
+                    if item["gear_category"]["name"] == "Equipment Packs":
+                        adv_g = Pack.Pack(item["name"], Wealth.Wealth(0, 0, 0, item["cost"]["quantity"], 0), item["gear_category"]["name"],
+                                          item["contents"])
+                    else:
+                        adv_g = Adv_Gear.Adv_Gear(item["name"], item["gear_category"]["name"],
                                               Wealth.Wealth(0, 0, 0, item["cost"]["quantity"], 0), item["weight"])
                     self.advGear.append(adv_g)
                 elif item["equipment_category"]["index"] == 'tools':
@@ -75,7 +82,10 @@ class Equipment:
                                      item["weight"])
                     self.tools.append(tool)
             else:
-                pass  # need to do something here for martial weapons...
+                noItem = "It seems that in your starting equipment choice you picked a 'generic' item. " \
+                       "The DM will provide you the right type of item."
+
+        return noItem
 
     def toJson(self):
         return json.dumps(self.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
@@ -83,15 +93,19 @@ class Equipment:
 
 def toString(equipment):
     e = json.loads(MyEncoder().encode(equipment).replace("\"", '"'))
-    e = json.dumps(e)
+    e = json.dumps(e, sort_keys=True, indent=4, ensure_ascii=False)
+    e = e.replace("{", "")
+    e = e.replace("}", "")
+    e = e.replace('"', '')
+    e = e.replace("[", "")
+    e = e.replace("]", "")
     return e
 
 
 def main():
-    equipment: Equipment
     equipment = Equipment(Wealth.Wealth(0, 0, 0, 0, 0), [], [], [], [], [], [])
-    print(type(equipment))
-
+    e = toString(equipment)
+    print(e)
 
 if __name__ == "__main__":
     main()
