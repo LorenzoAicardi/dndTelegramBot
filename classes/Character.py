@@ -87,7 +87,7 @@ class Character:
                 armor = Armor.Armor(item["name"], Wealth.Wealth(0, 0, 0, item["cost"]["quantity"], 0),
                                     item["armor_class"]["base"], item["str_minimum"], item["weight"])
                 self.equipment.armor.append(armor)  # create method that appends the armor piece
-            elif item["equipment_category"]["index"] == 'weapon':  # TODO: redo according to how weapon is in the json
+            elif item["equipment_category"]["index"] == 'weapon':
                 properties = []
                 for prop in item["properties"]:
                     properties.append(prop["name"])
@@ -95,7 +95,7 @@ class Character:
                                        item["damage"]["damage_dice"], item["damage"]["damage_type"]["name"],
                                        item["weight"], properties)
                 self.equipment.weapons.append(weapon)  # same thing here
-            elif item["equipment_category"]["index"] == 'adventuring-gear':  # TODO: REDO PACK ITEMS
+            elif item["equipment_category"]["index"] == 'adventuring-gear':
                 if item["gear_category"]["name"] == "Equipment Packs":
                     adv_g = Pack.Pack(item["name"], Wealth.Wealth(0, 0, 0, item["cost"]["quantity"], 0), item["gear_category"],
                                       item["contents"])
@@ -111,7 +111,7 @@ class Character:
             else:
                 return "No item with such name found."
 
-    def rmItem(self, item_name: str):  # TODO: DEL FROM MEMORY REQ_EQ, OR MAKE IT GLOBAL ONCE AND FOR ALL
+    def rmItem(self, item_name: str):
         with open(os.path.dirname(os.getcwd()) + "/resources/5e-SRD-Equipment.json", "r") as read_file:
             req_eq = json.load(read_file)
 
@@ -146,8 +146,17 @@ class Character:
                         return "Tool has been removed successfully!"
                 return "No such tool has been found."
 
-    def useSpell(self, spell):  # TODO: COMPLETE
-        pass
+    def useSpell(self, spellName):
+        for spell in self.equipment.spells:
+            if spell.name == spellName:
+                spellDesc = spell.desc
+                if hasattr(spell, "damage_type"):
+                    damage = []
+                    damage[0] = spell.damage_type
+                    damage[1] = Dice.roll(spell.damage_dice, 0)
+                    damage[2] = spell.desc
+                    return damage
+                return spellDesc
 
     def useWeapon(self, weapon_name: str, mod: int):
         w: Weapon

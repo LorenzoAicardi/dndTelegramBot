@@ -4,7 +4,7 @@ from classes import Monster
 
 
 class MyTestCase(unittest.TestCase):
-    def test_takeDamage(self):  # TODO: COMPLETE
+    def test_takeDamage(self):
         dmg = [10, "bludgeoning"]
         monster = Monster.Monster("ape")
         monster.takeDamage(dmg)

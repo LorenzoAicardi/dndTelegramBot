@@ -1,6 +1,11 @@
+import yaml
+
 from . import Dice
 import os
 import json
+import re
+
+from .JSONEncoder import MyEncoder
 
 
 class Monster:
@@ -48,6 +53,8 @@ class Monster:
             self.damage_vulnerabilities = monster["damage_vulnerabilities"]
             self.damage_resistances = monster["damage_resistances"]
             self.damage_immunities = monster["damage_immunities"]
+        else:
+            pass
 
     @classmethod
     def loadMonster(cls, name, hp, hd, speed, strength, dex, const, intl, wis, cha, proficiencies, senses,
@@ -74,7 +81,7 @@ class Monster:
 
     def takeDamage(self, damage: []):
         attempt = Dice.roll("d20", 0)
-        message = "D20 result: " + str(attempt) + self.name + " Armor Class: " + str(self.armorClass) + "."
+        message = "D20 result: " + str(attempt) + " " +  self.name + " Armor Class: " + str(self.armorClass) + "."
         if attempt < self.armorClass:  # if a player rolls an attack role below the target's AC, the attack fails
             message += " Your attack missed."
             return message
@@ -90,7 +97,7 @@ class Monster:
             pass
         else:
             self.hp = self.hp - damage[0]
-        message += " Monster remaining health: " + str(self.hp)
+        message += " The attack landed. Monster remaining health: " + str(self.hp) + "."
         return message
 
     def takeDamageAdv(self, damage: [], adv: bool):
@@ -98,27 +105,27 @@ class Monster:
         if adv:
             attempt1 = Dice.roll("d20", 0)
             attempt2 = Dice.roll("d20", 0)
-            message = "First roll result: " + str(attempt1) + ", second roll result: " + str(attempt2) + ". "
+            message = "First roll result: " + str(attempt1) + ", second roll result: " + str(attempt2) + "."
             if attempt2 > attempt1:
                 attempt = attempt2
-                message += "Using " + str(attempt)
+                message += " Using " + str(attempt) + ". "
             else:
                 attempt = attempt1
-                message += "Using " + str(attempt)
-            message += "D20 result: " + str(attempt) + self.name + " Armor Class: " + str(self.armorClass) + "."
+                message += " Using " + str(attempt) + ". "
+            message += "D20 result: " + str(attempt) + " " + self.name + " Monster Armor Class: " + str(self.armorClass) + "."
             if attempt < self.armorClass:  # if a player rolls an attack role below the target's AC, the attack fails
                 message += " Your attack missed."
                 return message
         else:
             attempt1 = Dice.roll("d20", 0)
             attempt2 = Dice.roll("d20", 0)
-            message = "First roll result: " + str(attempt1) + ", second roll result: " + str(attempt2) + ". "
+            message = " First roll result: " + str(attempt1) + ", second roll result: " + str(attempt2) + ". "
             if attempt2 < attempt1:
                 attempt = attempt2
-                message += "Using " + str(attempt)
+                message += "Using " + str(attempt) + ". "
             else:
                 attempt = attempt1
-                message += "Using " + str(attempt)
+                message += "Using " + str(attempt) + ". "
             message += "D20 result: " + str(attempt) + self.name + " Armor Class: " + str(self.armorClass) + "."
             if attempt < self.armorClass:  # if a player rolls an attack role below the target's AC, the attack fails
                 message += " Your attack missed."
@@ -135,7 +142,7 @@ class Monster:
             pass
         else:
             self.hp = self.hp - damage[0]
-        message += " Monster remaining health: " + str(self.hp)
+        message += " Monster remaining health: " + str(self.hp) + "."
         return message
 
     def heal(self, heal: int):
@@ -199,3 +206,45 @@ def loadMonster(name, hp, hd, speed, strength, dex, const, intl, wis, cha, profi
     return Monster.loadMonster(name, hp, hd, speed, strength, dex, const, intl, wis, cha, proficiencies, senses,
                                languages, challenge, actions, damage_vulnerabilities, damage_resistances,
                                damage_immunities)
+
+
+def toString(monster: Monster):
+    m = json.loads(MyEncoder().encode(monster).replace("\"", '"'))
+    for item in m["actions"]:
+        if "damage" in item:
+            for i in item["damage"]:
+                del i["damage_type"]["index"]
+                del i["damage_type"]["url"]
+
+    if "proficiencies" in m:
+        for item in m["proficiencies"]:
+            # for i in item["proficiency"]:
+            #     del i["index"]
+            #     del i["url"]
+            del item["proficiency"]["index"]
+            del item["proficiency"]["url"]
+    m = yaml.safe_dump(m, sort_keys=False, allow_unicode=True, default_flow_style=False)
+    m = m.replace("name", "Name")
+    m = m.replace("desc", "<i>Description</i>")
+    m = m.replace("speed", "Speed")
+    m = m.replace("damage", "Damage")
+    m = m.replace("damage_type", "Damage type")
+    m = m.replace("damage_dice", "Damage dice")
+    m = m.replace("damage_vulnerabilities", "Damage vulnerabilities")
+    m = m.replace("damage_resistances", "Damage resistances")
+    m = m.replace("damage_immunities", "Damage immunities")
+    m = m.replace("hp", "Hit points")
+    m = m.replace("hd", "Hit dice")
+    m = m.replace("strength", "\nStrength")
+    m = m.replace("dex", "Dexterity")
+    m = m.replace("proficiencies", "\n<b>Proficiencies</b>")
+    m = m.replace("senses", "<b>Senses</b>")
+    m = m.replace("languages", "<b>Languages</b>")
+    m = m.replace("challenge", "<b>Challenge</b>")
+    m = m.replace("const", "Constitution")
+    m = m.replace("actions", "\n<b>Actions</b>")
+    m = m.replace("intl", "Intelligence")
+    m = m.replace("wis", "Wisdom")
+    m = m.replace("cha", "Charisma", 1)
+    m = m.replace("[]", "None")
+    return m

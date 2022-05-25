@@ -1,4 +1,5 @@
 from classes import Wealth
+# import Wealth
 
 
 class Pack:
@@ -7,4 +8,10 @@ class Pack:
         self.name = name
         self.cost = cost
         self.gear_category = gear_category
-        self.contents = contents
+        cont = []
+        for i in range(len(contents)):
+            if isinstance(contents[i], dict):
+                cont.append(contents[i]["item"]["name"])  # if it's a new campaign
+            else:
+                cont.append(contents[i])  # if I'm loading the campaign
+        self.contents = cont

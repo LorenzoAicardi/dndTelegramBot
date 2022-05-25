@@ -1,16 +1,18 @@
 import json
+
+import telegram
 from telegram import *
 from telegram.ext import *
-import os
-from classes import Character
 from classes.JSONEncoder import MyEncoder
-from . import charCreationMenu
 from classes import Monster
+import re
 
 DM, DMCOMBATMENU, PLAYERMENU, RESOLVEITEMCHOICE, MONSTERSPAWNED, CHOOSEITEM, \
-CHOOSEHP, RESOLVEHPCHOICE, CHOOSETARGET, DAMAGECALC, ERROR = range(11)
+CHOOSEHP, RESOLVEHPCHOICE, CHOOSETARGET, DAMAGECALC, ERROR, RMMONSTER, ADDXP, RESOLVEADDXP = range(14)
 
-#TODO: MAKE COMBAT END IMMEDIATELY FOR EVERYONE
+
+# TODO: DAMAGE OR HEAL MOSNTER; DESPAWN MONSTER
+# TODO: CANCEL ACTION
 def activeCamp():
     return ConversationHandler(
         entry_points=[CommandHandler('startCampaignDM', menu)],
@@ -20,7 +22,8 @@ def activeCamp():
                     Filters.text & ~Filters.command('quit') & ~Filters.regex("^Add item to player...|Remove item "
                                                                              "from player...| "
                                                                              "Add spell to player...|Damage player|Heal player|"
-                                                                             "Begin combat|Spawn monster|Save campaign$"),
+                                                                             "Begin combat|Spawn monster|Save campaign"
+                                                                             "|Remove monster|Add xp to player$"),
                     dmMenu),
                 MessageHandler(Filters.regex("^Add item to "
                                              "player...|Remove item "
@@ -30,22 +33,27 @@ def activeCamp():
                                choosePlayer),
                 MessageHandler(Filters.regex("^Begin combat$"), dmCombatMenu),
                 MessageHandler(Filters.regex("^Spawn monster$"), spawnMonster),
-                MessageHandler(Filters.regex("^Save campaign$"), saveCampaign)
+                MessageHandler(Filters.regex("^Save campaign$"), saveCampaign),
+                MessageHandler(Filters.regex("^Remove monster$"), chooseMonsterToRemove),
+                MessageHandler(Filters.regex("^Add xp to player$"), addXp)
             ],
-            CHOOSEITEM: [MessageHandler(Filters.text, chooseItem)],
-            CHOOSEHP: [MessageHandler(Filters.text, chooseHp)],
-            RESOLVEITEMCHOICE: [MessageHandler(Filters.text, resolveItemChoice)],
-            RESOLVEHPCHOICE: [MessageHandler(Filters.text, resolveHpChoice)],
-            MONSTERSPAWNED: [MessageHandler(Filters.text, monsterSpawned)],
-            DMCOMBATMENU: [MessageHandler(Filters.regex("^Begin combat|Done$"), dmCombatMenu),
+            CHOOSEITEM: [MessageHandler(Filters.text & ~Filters.command, chooseItem)],
+            CHOOSEHP: [MessageHandler(Filters.text & ~Filters.command, chooseHp)],
+            RESOLVEITEMCHOICE: [MessageHandler(Filters.text & ~Filters.command, resolveItemChoice)],
+            RESOLVEHPCHOICE: [MessageHandler(Filters.text & ~Filters.command, resolveHpChoice)],
+            MONSTERSPAWNED: [MessageHandler(Filters.text & ~Filters.command, monsterSpawned)],
+            DMCOMBATMENU: [MessageHandler(Filters.regex("^Begin combat|Done$") & ~Filters.command, dmCombatMenu),
                            # NEED TO FIND A WAY TO GET BACK HERE FROM DAMAGECALC
-                           MessageHandler(Filters.regex("^Make monster attack$"), monsterAttack),
-                           MessageHandler(Filters.regex("^End combat$"), dmMenu),
-                           MessageHandler(Filters.regex("^Pass$"), monsterAttack)],
-            CHOOSETARGET: [MessageHandler(Filters.text, chooseTarget)],
-            DAMAGECALC: [MessageHandler(Filters.text, damageCalculation)]
+                           MessageHandler(Filters.regex("^Make monster attack$") & ~Filters.command, monsterAttack),
+                           MessageHandler(Filters.regex("^End combat$") & ~Filters.command, dmMenu),
+                           MessageHandler(Filters.regex("^Pass$") & ~Filters.command, monsterAttack)],
+            CHOOSETARGET: [MessageHandler(Filters.text & ~Filters.command, chooseTarget)],
+            DAMAGECALC: [MessageHandler(Filters.text & ~Filters.command, damageCalculation)],
+            RMMONSTER: [MessageHandler(Filters.text & ~Filters.command, removeMonster)],
+            ADDXP: [MessageHandler(Filters.text & ~Filters.command, numberXp)],
+            RESOLVEADDXP: [MessageHandler(Filters.text & ~Filters.command, resolveAddXp)]
         },
-        fallbacks=[CommandHandler('quit', quitCampaign)],
+        fallbacks=[CommandHandler('quit', quitCampaign), CommandHandler('cancelAction', dmMenu)],
         per_user=True,
         per_chat=False  # The DM can write private messages to the bot if he may want to.
     )
@@ -55,7 +63,11 @@ def menu(update: Update, context: CallbackContext) -> int:
     if update.message.from_user.username != context.chat_data["activeCampaign"]["dm"]:
         context.bot.send_message(chat_id=update.effective_chat.id, text="You're not the DM!")
         return ConversationHandler.END
-    context.bot.send_message(chat_id=update.effective_chat.id, text="DM, write anything down to pop up the menu!")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="DM, write anything down to pop up the menu! You"
+                                                                    " can save and quit the campaign "
+                                                                    "at any time by using"
+                                                                    " the command /quit. Also, you can return to "
+                                                                    "the menu at anytime by using /cancelAction.")
     return DM
 
 
@@ -74,12 +86,14 @@ def dmMenu(update: Update, context: CallbackContext) -> int:
         context.bot.send_message(chat_id=update.effective_chat.id, text="Combat has been terminated.")
 
     menu = [[KeyboardButton("Spawn monster")],
+            [KeyboardButton("Remove monster")],
             [KeyboardButton("Begin combat")],
             [KeyboardButton("Add item to player...")],
             [KeyboardButton("Remove item from player...")],
             [KeyboardButton("Add spell to player...")],
             [KeyboardButton("Damage player")],
             [KeyboardButton("Heal player")],
+            [KeyboardButton("Add xp to player")],
             [KeyboardButton("Save campaign")]]
     context.bot.send_message(chat_id=update.effective_chat.id, text="Choose what to do next...",
                              reply_markup=ReplyKeyboardMarkup(menu,
@@ -93,7 +107,6 @@ def dmMenu(update: Update, context: CallbackContext) -> int:
 def saveCampaign(update: Update, context: CallbackContext):
     data = dict()
     data["dm"] = context.chat_data["activeCampaign"]["dm"]
-    print(context.chat_data["activeCampaign"])
     for key in context.chat_data["activeCampaign"]:
         if key.endswith("char"):
             charInfo = json.loads(MyEncoder().encode(context.chat_data["activeCampaign"][key]).replace("\"", '"'))
@@ -112,6 +125,36 @@ def saveCampaign(update: Update, context: CallbackContext):
     return DM
 
 
+def addXp(update: Update, context: CallbackContext):
+    playerList = []
+    for key in context.chat_data["activeCampaign"]:
+        if key.endswith("char"):
+            playerList.append([KeyboardButton(context.chat_data["activeCampaign"][key].name)])
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Choose player to add xp to.",
+                             reply_markup=ReplyKeyboardMarkup(playerList, one_time_keyboard=True, selective=True),
+                             reply_to_message_id=update.message.message_id)
+    return ADDXP
+
+
+def numberXp(update: Update, context: CallbackContext):
+    context.chat_data["chosenPlayer"] = update.message.text
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Choose the amount of exp to add.")
+    return RESOLVEADDXP
+
+
+def resolveAddXp(update: Update, context: CallbackContext):
+    xpAmount = update.message.text
+    if not update.message.text.isnumeric():
+        context.chat_data(chat_id=update.effective_chat.id, text="Please enter a number.")
+        return DM
+    for key in context.chat_data["activeCampaign"]:
+        if key.endswith("char"):
+            if context.chat_data["activeCampaign"][key].name == context.chat_data["chosenPlayer"]:
+                context.chat_data["activeCampaign"][key].stats.addXp(int(xpAmount))
+                context.bot.send_message(chat_id=update.effective_chat.id, text="Xp has been added successfully!")
+                return DM
+
+
 def spawnMonster(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Write down the name of the monster that you "
                                                                     "want to spawn.")
@@ -120,12 +163,68 @@ def spawnMonster(update: Update, context: CallbackContext):
 
 def monsterSpawned(update: Update, context: CallbackContext):
     monsterName = update.message.text
+    monsterName.capitalize()  # redundant but required for duplicates
     monster = Monster.Monster(monsterName)  # regardless of anything the monster name will be in uppercase
-    context.chat_data["activeCampaign"][monster.name + "monster"] = monster
-    context.bot.send_message(chat_id=update.effective_chat.id, text=monster.name + " has been spawned.")
+    if not hasattr(monster, "name"):
+        context.bot.send_message(chat_id=update.effective_chat.id, text="No such monster found. Try again.")
+        return DM
+
+    monsterNames = []
+    for key in context.chat_data["activeCampaign"]:
+        if key.endswith("monster"):
+            name = "".join(re.split('[^a-zA-Z]*', context.chat_data["activeCampaign"][key].name))
+            monsterNames.append(name)
+
+    print(monsterNames)  # this is right
+
+    if monster.name not in monsterNames:
+        context.chat_data[monster.name + "sameNameCounter"] = 0
+        context.chat_data["activeCampaign"][monster.name + "monster"] = monster
+        nameOfSpawnedMonster = context.chat_data["activeCampaign"][monster.name + "monster"].name
+    else:
+        monsterIndex = context.chat_data[monster.name + "sameNameCounter"]
+        monsterIndex = monsterIndex + 1
+        context.chat_data[monster.name + "sameNameCounter"] = monsterIndex
+        for key in context.chat_data:
+            if key.endswith("sameNameCounter"):
+                print(key, context.chat_data[key])
+
+        monster.name = monster.name + str(context.chat_data[monster.name + "sameNameCounter"])
+
+        context.chat_data["activeCampaign"][monster.name + "monster"] = monster
+
+        nameOfSpawnedMonster = context.chat_data["activeCampaign"][monster.name + "monster"].name
+
+    context.bot.send_message(chat_id=update.effective_chat.id, text=nameOfSpawnedMonster + " has been spawned.")
     context.bot.send_message(chat_id=update.effective_chat.id,
-                             text=context.chat_data["activeCampaign"][
-                                      monster.name + "monster"].name + " statblock:")  # TODO: insert statblock
+                             text=nameOfSpawnedMonster +
+                                  " statblock:\n" + Monster.toString(
+                                 context.chat_data["activeCampaign"][monster.name + "monster"]), parse_mode=telegram.ParseMode.HTML)
+    return DM
+
+
+def chooseMonsterToRemove(update: Update, context: CallbackContext):
+    monsterList = []
+    for key in context.chat_data["activeCampaign"]:
+        if key.endswith("monster"):
+            monsterList.append([KeyboardButton(context.chat_data["activeCampaign"][key].name)])
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Select the monster you want to remove.",
+                             reply_markup=ReplyKeyboardMarkup(monsterList, one_time_keyboard=True, selective=True),
+                             reply_to_message_id=update.message.message_id)
+    return RMMONSTER
+
+
+def removeMonster(update: Update, context: CallbackContext):
+    chosenMonsterName = update.message.text
+    for key in context.chat_data["activeCampaign"]:
+        if key.endswith("monster"):
+            if context.chat_data["activeCampaign"][key].name == chosenMonsterName:
+                del context.chat_data["activeCampaign"][key]
+                context.bot.send_message(chat_id=update.effective_chat.id, text="The chosen monster has been removed. "
+                                                                                "Write down anything to pop up the menu.")
+                return DM
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, we couldn't find the monster. "
+                                                                    "Write anything to pop up the menu!")
     return DM
 
 
@@ -143,27 +242,34 @@ def choosePlayer(update: Update, context: CallbackContext):
 
 
 def chooseItem(update: Update, context: CallbackContext):
-    context.chat_data["chosenPlayer"] = update.message.text
+    context.chat_data["chosenPlayer"] = update.message.text  # this is the character name
     context.bot.send_message(chat_id=update.effective_chat.id, text="Choose the item/spell to add/remove.")
     return RESOLVEITEMCHOICE
 
 
 def resolveItemChoice(update: Update, context: CallbackContext):
     error = ""
+    chosenPlayer = context.chat_data["chosenPlayer"]
+    for key in context.chat_data["activeCampaign"]:
+        if key.endswith("char"):
+            if context.chat_data["activeCampaign"][key].name == chosenPlayer:
+                chosenPlayer = key
     if context.chat_data["dmChoice"] == "Add item to player...":
-        chosenPlayer = context.chat_data["chosenPlayer"]
         item = update.message.text
-        error = context.chat_data["activeCampaign"][chosenPlayer + "char"].addItem(item)
+        # chosenPlayer is the character name, not the character username
+        error = context.chat_data["activeCampaign"][chosenPlayer].addItem(item)
     elif context.chat_data["dmChoice"] == "Remove item to player...":
-        chosenPlayer = context.chat_data["chosenPlayer"]
         item = update.message.text
-        error = context.chat_data["activeCampaign"][chosenPlayer + "char"].rmItem(item)
+        error = context.chat_data["activeCampaign"][chosenPlayer].rmItem(item)
     elif context.chat_data["dmChoice"] == "Add spell to player...":
-        chosenPlayer = context.chat_data["chosenPlayer"]
         spell = update.message.text
-        error = context.chat_data["activeCampaign"][chosenPlayer + "char"].addSpell(spell)
+        error = context.chat_data["activeCampaign"][chosenPlayer].addSpell(spell)
 
-    context.bot.send_message(chat_id=update.effective_chat.id, text="The action was successful." + str(error))
+    if str(error) != None:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="The action was successful. Type anything to "
+                                                                        "pop up the menu.")
+    else:
+        context.bot.send_message(chat_id=update.effective_chat.id, text=error)
     return DM
 
 
@@ -200,7 +306,7 @@ def influence(update: Update, context: CallbackContext):
             context.chat_data["activeCampaign"][key].name + " rolled " + str(initiative))
         if key.endswith("monster"):
             initiative = context.chat_data["activeCampaign"][key].roll("d20", (
-                        context.chat_data["activeCampaign"][key].dex - 10) / 2)
+                    context.chat_data["activeCampaign"][key].dex - 10) / 2)
             combatOrder.append((context.chat_data["activeCampaign"][key].name, initiative, key))
             context.bot.send_message(chat_id=update.effective_chat.id, text=
             context.chat_data["activeCampaign"][key].name + " rolled " + str(initiative))
@@ -226,14 +332,13 @@ def influence(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Combat order: " + order)
 
     # Telling whose turn it is the first time around.
-    context.bot.send_message(chat_id=update.effective_chat.id, text="It's " + context.chat_data["currentPlayer"] +
-                                                                    "'s turn!")
     return DMCOMBATMENU
 
 
 def dmCombatMenu(update: Update, context: CallbackContext):
     if "combatOrder" not in context.chat_data:
         influence(update, context)
+        context.bot.send_message(chat_id=update.effective_chat.id, text="DM, type anything to initiate combat.")
     else:  # TODO: NEEDS TO BE REWORKED
 
         context.bot.send_message(chat_id=update.effective_chat.id, text="It's " + context.chat_data["currentPlayer"] +
@@ -258,7 +363,7 @@ def monsterAttack(update: Update, context: CallbackContext):
             context.chat_data["currentPlayer"] = \
                 context.chat_data["combatOrder"][context.chat_data["combatOrderIndex"]][0]
             context.chat_data["currentPlayerKey"] = \
-            context.chat_data["combatOrder"][context.chat_data["combatOrderIndex"]][2]
+                context.chat_data["combatOrder"][context.chat_data["combatOrderIndex"]][2]
             context.bot.send_message(chat_id=update.effective_chat.id, text="The DM has chosen to pass the turn. He "
                                                                             "may type anything to let other players"
                                                                             "play.")
@@ -277,9 +382,9 @@ def monsterAttack(update: Update, context: CallbackContext):
 def chooseTarget(update: Update, context: CallbackContext):
     context.chat_data["dmChoice"] = update.message.text
     players = []
-    for key in context.chat_data:
+    for key in context.chat_data["activeCampaign"]:
         if key.endswith("char"):
-            players.append(context.chat_data["activeCampaign"][key]["name"])
+            players.append([KeyboardButton(context.chat_data["activeCampaign"][key].name)])
     context.bot.send_message(chat_id=update.effective_chat.id, text="Choose the target player.",
                              reply_markup=ReplyKeyboardMarkup(players, one_time_keyboard=True, selective=True),
                              reply_to_message_id=update.message.message_id)
@@ -293,9 +398,22 @@ def damageCalculation(update: Update, context: CallbackContext):
     monsterAction = monsterAction.partition(':')[0]
     monster = context.chat_data["activeCampaign"][context.chat_data["currentPlayer"] + "monster"]
     damage = monster.attack(monsterAction)
-    msg = context.chat_data["activeCampaign"][targetPlayer + "char"].stats.takeDamage(damage)
+    target = ""
+    for key in context.chat_data["activeCampaign"]:
+        if key.endswith("char"):
+            print("gets in the first if, should appear multiple times")
+            if targetPlayer == context.chat_data["activeCampaign"][key].name:
+                print("gets here")
+                target = context.chat_data["activeCampaign"][key]
+
+    if target == "":
+        context.bot.send_message(chat_id=update.effective_chat.id, text="We haven't found the player. Retry,"
+                                                                        " it's still your turn. ")
+        return DMCOMBATMENU
+
+    msg = target.stats.takeDamage(damage)
     context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
-    if context.chat_data["activeCampaign"][targetPlayer + "char"].stats.hp <= 0:
+    if target.stats.hp <= 0:
         context.bot.send_message(chat_id=update.effective_chat.id, text="Oh no! The player died!")
         # del context.chat_data["activeCampaign"][targetPlayer + "char"] ? I don't know if I want to delete che char right away
 

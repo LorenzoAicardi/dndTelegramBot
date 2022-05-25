@@ -52,13 +52,12 @@ def setName(update: Update, context: CallbackContext):  # starts a private conve
 
 
 def setEquip(update: Update,
-             context: CallbackContext) -> int:  # TODO: WORKS, BUT IS KINDA AWFUL
+             context: CallbackContext) -> int:
 
     if context.user_data[update.message.from_user.username + "firstTime"]:
         # if the user just inserted race and class
         text = update.message.text
         text = text.lower()
-        # TODO: use strip on the 2 substrings.
         raceClass = text.split(", ")
         raceClass[0] = raceClass[0].strip()
         raceClass[1] = raceClass[1].strip()

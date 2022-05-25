@@ -4,6 +4,8 @@ import json
 import dataclasses
 
 from classes import Dice
+import colorama
+from collections import OrderedDict
 
 
 @dataclasses.dataclass()
@@ -142,7 +144,7 @@ class Statistics:
         # for now, just takes into account the damage value. If needed, put damage
         # type too (with respective modifier).
         attempt = Dice.roll("d20", 0)
-        message = "D20 result: " + str(attempt) + "Player Armor Class: " + str(self.armClass) + "."
+        message = "D20 result: " + str(attempt) + " Player Armor Class: " + str(self.armClass) + "."
         if attempt < self.armClass:
             message += "The attack missed."
             return message
@@ -161,7 +163,7 @@ class Statistics:
             else:
                 total_damage += damage[i]
         self.hp = self.hp - (base_damage + total_damage)
-        message += " Player remaining health: " + str(self.hp)
+        message += " The attack landed. Player remaining health: " + str(self.hp)
         return message
 
     def heal(self, heal: int):
@@ -187,8 +189,6 @@ class Statistics:
         # every 4 levels from the first, profBonus increases by one. (5/4 = 1 with 1 spare, 9/4 = 2 with 1 spare, ...)
         if self.lvl % 4 == 1:
             self.profBonus += 1
-
-        # TODO: ADD SPELL SLOTS PER LEVEL
 
     def lvlUpStats(self, statsUp: []):
         if self.lvlUpPoints == 0:
@@ -225,25 +225,76 @@ class Statistics:
             yield attr, value
 
     def toJson(self):
-        return json.dumps(self.__dict__, sort_keys=True, indent=4, ensure_ascii=False)
+        return json.dumps(self.__dict__, indent=0, ensure_ascii=False)
+
+    def ordered(self):
+        ordered = OrderedDict(self.__dict__)
+        return ordered
 
 
 def loadStats(lvl, xp, ins, profBonus, initiative, speed, hp, hd,
-                  max_hd, strMod, dexMod, constMod, intlMod, wisMod, chaMod, hd_number,
-                  lvlUpPoints, strength, dex, const, intl, wis, cha, spell_slots, curr_used_spell_slots,
-                  damage_vulnerabilities, damage_resistances, damage_immunities) -> Statistics:
-
+              max_hd, strMod, dexMod, constMod, intlMod, wisMod, chaMod, hd_number,
+              lvlUpPoints, strength, dex, const, intl, wis, cha, spell_slots, curr_used_spell_slots,
+              damage_vulnerabilities, damage_resistances, damage_immunities) -> Statistics:
     return Statistics.loadStats(lvl, xp, ins, profBonus, initiative, speed, hp, hd,
-                  max_hd, strMod, dexMod, constMod, intlMod, wisMod, chaMod, hd_number,
-                  lvlUpPoints, strength, dex, const, intl, wis, cha, spell_slots, curr_used_spell_slots,
-                  damage_vulnerabilities, damage_resistances, damage_immunities)
+                                max_hd, strMod, dexMod, constMod, intlMod, wisMod, chaMod, hd_number,
+                                lvlUpPoints, strength, dex, const, intl, wis, cha, spell_slots, curr_used_spell_slots,
+                                damage_vulnerabilities, damage_resistances, damage_immunities)
 
 
 def toString(statistics) -> str:
-    stats = statistics.toJson()
+    # Str, Dex, etc... are ABILITIES
+    # their modifiers are MODIFIERS
+    # ins is INSPIRATION
+    # profBonus is proficiency bonus
+    oldStats = statistics.ordered()
+    new_names = ["Level", "Level up points", "Exp", "Inspiration", "Proficiency bonus", "Initiative", "Speed",
+                 "Current health", "Maximum health", "Hit die", "Max amount of hit dice",
+                 "Current amount of hit dice held",
+                 "Armor class", "Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma",
+                 "Strength modifier", "Dexterity modifier", "Constitution modifier", "Intelligence modifier",
+                 "Wisdom modifier", "Charisma modifier", "Max spell slots", "Currently used spell slots",
+                 "Damage vulnerabilities", "Damage resistances", "Damage immunities"]
+    pref_order = ["lvl", "lvlUpPoints", "xp", "ins", "profBonus", "initiative", "speed", "hp", "max_hp", "hd", "max_hd",
+                  "hd_number", "armClass",
+                  "strength", "dex", "const", "intl", "wis", "cha", "strMod", "dexMod",
+                  "constMod", "intlMod", "wisMod", "chaMod", "spell_slots", "curr_used_spell_slots",
+                  "damage_vulnerabilities", "damage_resistances", "damage_immunities"]
+
+    stats = dict.fromkeys(new_names)
+
+    for k in pref_order:
+        oldStats.move_to_end(k)
+
+    oldStatsItems = list(oldStats.items())
+    i = 0
+    while i < len(new_names):
+        stats[new_names[i]] = oldStatsItems[i][1]
+        i += 1
+
+    level = stats["Level"]
+    stren = stats["Strength"]
+    strMod = stats["Strength modifier"]
+
+    stats = json.dumps(stats, indent=0, ensure_ascii=False)
     stats = stats.replace("{", "")
     stats = stats.replace("}", "")
     stats = stats.replace('"', '')
     stats = stats.replace("[", "")
     stats = stats.replace("]", "")
+    stats = stats.replace("Level: " + str(level) + ",", "<b>Base statistics:</b>\nLevel: " + str(level) + ",")
+    stats = stats.replace("Strength: " + str(stren) + ",", "\n<b>Abilities:</b>\nStrength: " + str(stren) + ",")
+    stats = stats.replace("Strength modifier: " + str(strMod) + ",", "\n<b>Modifiers:</b>\nStrength modifier: " + str(strMod) + ",")
+    stats = stats.replace("Max spell slots: ", "\n<b>Spells:</b>\nMax spell slots: ")
+    stats = stats.replace("Damage vulnerabilities: ", "\n<b>Damage modifiers:</b>\nDamage vulnerabilities: ")
     return stats
+
+
+def main():
+    stats = Statistics(0, 0, 0, 0, 0, 0, 0, 0)
+    stats = toString(stats)
+    print(stats)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,9 +1,7 @@
 import json
 import os
-from dataclasses import dataclass
-from dataclasses import field
-from random import random
 from random import randint
+import yaml
 
 from classes import Wealth
 from classes import Adv_Gear
@@ -14,6 +12,15 @@ from classes import Spell
 from classes import JSONEncoder
 from classes.JSONEncoder import MyEncoder
 from classes import Pack
+# import Wealth
+# import Adv_Gear
+# import Tool
+# import Armor
+# import Weapon
+# import Spell
+# import JSONEncoder
+# from JSONEncoder import MyEncoder
+# import Pack
 
 
 class Equipment:
@@ -61,7 +68,7 @@ class Equipment:
                                         item["armor_class"]["base"], item["str_minimum"], item["weight"])
                     self.armor.append(armor)  # create method that appends the armor piece
                 elif item["equipment_category"]["index"] == 'weapon':
-                    properties = []  # TODO: redo according to how weapon is in the json
+                    properties = []
                     for prop in item["properties"]:
                         properties.append(prop["name"])
                     weapon = Weapon.Weapon(item["name"], Wealth.Wealth(0, 0, 0, item["cost"]["quantity"], 0),
@@ -93,17 +100,55 @@ class Equipment:
 
 def toString(equipment):
     e = json.loads(MyEncoder().encode(equipment).replace("\"", '"'))
-    e = json.dumps(e, sort_keys=True, indent=4, ensure_ascii=False)
-    e = e.replace("{", "")
-    e = e.replace("}", "")
-    e = e.replace('"', '')
-    e = e.replace("[", "")
-    e = e.replace("]", "")
+    for k in list(e["wealth"]):
+        if e["wealth"][k] == 0:
+            del e["wealth"][k]
+
+    for item in list(e["armor"]):
+        if len(e["armor"]) != 0:
+            for k in list(item["cost"]):
+                if item["cost"][k] == 0:
+                    del item["cost"][k]
+
+    for item in list(e["weapons"]):
+        if len(e["weapons"]) != 0:
+            for k in list(item["cost"]):
+                if item["cost"][k] == 0:
+                    del item["cost"][k]
+
+    for item in list(e["advGear"]):
+        if len(e["advGear"]) != 0:
+            for k in list(item["cost"]):
+                if item["cost"][k] == 0:
+                    del item["cost"][k]
+
+    for item in list(e["tools"]):
+        if len(e["tools"]) != 0:
+            for k in list(item["cost"]):
+                if item["cost"][k] == 0:
+                    del item["cost"][k]
+
+    e = yaml.safe_dump(e, sort_keys=False, allow_unicode=True, default_flow_style=False)
+    e = e.replace("wealth", "<b>Wealth</b>")
+    e = e.replace("armor", "\n<b>Armor</b>", 1)
+    e = e.replace("name", "<i>Name</i>")
+    e = e.replace("armorClass", "<i>Armor class</i>")
+    e = e.replace("strength", "<i>Strength</i>")
+    e = e.replace("weight", "<i>Weight</i>")
+    e = e.replace("spellCast", "<b>\nSpell Cast</b>")
+    e = e.replace("advGear", "\n<b>Adventuring gear</b>")
+    e = e.replace("tools", "\n<b>Tools</b>")
+    e = e.replace("spells", "\n<b>Spells</b>")
+    e = e.replace("gear_category", "<i>Gear category</i>")
+    e = e.replace("contents", "<i>Contents</i>")
+    e = e.replace("cost", "<i>Cost</i>")
+    e = e.replace("weapons", "<b>\nWeapons</b>")
+    e = e.replace("[]", "None")
     return e
 
 
 def main():
-    equipment = Equipment(Wealth.Wealth(0, 0, 0, 0, 0), [], [], [], [], [], [])
+    equipment = Equipment(Wealth.Wealth(0, 0, 0, 0, 0), ["asd"], ["sdsa"], ["dfsd"], ["fdsfsd"], ["dsfdss"], ["dfdsfs"])
     e = toString(equipment)
     print(e)
 

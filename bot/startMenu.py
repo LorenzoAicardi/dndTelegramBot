@@ -1,4 +1,5 @@
 import json
+import re
 
 import telegram
 from telegram import *
@@ -37,8 +38,8 @@ def start(update: Update, context: CallbackContext) -> int:
     context.bot_data["Group chat id"] = update.effective_chat.id
     startingMenu = [[KeyboardButton("New campaign")], [KeyboardButton("Load campaign")]]
     context.bot.send_message(chat_id=context.bot_data["Group chat id"],
-                             text="Choose whether you want to start a new campaign"
-                                  "or load an older one.",
+                             text="Welcome! Choose whether you want to start a new campaign "
+                                  "or load an older one. ",
                              reply_markup=ReplyKeyboardMarkup(startingMenu, one_time_keyboard=True))
     return CAMPAIGN
 
@@ -156,7 +157,12 @@ def loadCamp(update: Update, context: CallbackContext) -> int:
                 spells = []
                 if campaign[key]["_class"] == "cleric" or campaign[key]["_class"] == "wizard":
                     for s in campaign[key]["equipment"]["spells"]:
-                        spell = Spell.Spell(s["name"])
+                        if "damage_dice" in s:
+                            spell = Spell.loadSpell(s["name"], s["level"], s["classes"], s["desc"], s["damage_type"],
+                                                    s["damage_dice"])
+                        else:
+                            spell = Spell.loadSpell(s["name"], s["level"], s["classes"], s["desc"], None,
+                                                    None)
                         spells.append(spell)
 
                 # initialize tools
@@ -179,6 +185,12 @@ def loadCamp(update: Update, context: CallbackContext) -> int:
                                                campaign[key]["_class"], stats, equipment)
                 context.chat_data["activeCampaign"][key] = character
             else:
+                monsterNames = []
+                for k in context.chat_data["activeCampaign"]:
+                    if k.endswith("monster"):
+                        name = "".join(re.split('[^a-zA-Z]*', context.chat_data["activeCampaign"][k].name))
+                        monsterNames.append(name)
+
                 monster = Monster.loadMonster(
                     campaign[key]["name"], campaign[key]["hp"], campaign[key]["hd"],
                     campaign[key]["speed"], campaign[key]["strength"], campaign[key]["dex"],
@@ -188,9 +200,16 @@ def loadCamp(update: Update, context: CallbackContext) -> int:
                     campaign[key]["actions"], campaign[key]["damage_vulnerabilities"],
                     campaign[key]["damage_resistances"], campaign[key]["damage_immunities"])
                 context.chat_data["activeCampaign"][key] = monster
-            # IT WORKS! Now I need to put them in their spots and to assign them to the correct players.
-            # The convention is that characters end with "char" and monsters end with "monster", so that
-            # it's easier for me to save them in memory.
+
+                if monster.name not in monsterNames:
+                    context.chat_data[monster.name + "sameNameCounter"] = 0
+                    context.chat_data["activeCampaign"][monster.name + "monster"] = monster
+                    nameOfSpawnedMonster = context.chat_data["activeCampaign"][monster.name + "monster"].name
+                else:
+                    monsterIndex = context.chat_data[monster.name + "sameNameCounter"]
+                    monsterIndex = monsterIndex + 1
+                    context.chat_data[monster.name + "sameNameCounter"] = monsterIndex
+
     context.chat_data["activeCampaign"]["dm"] = campaign["dm"]
     context.bot_data["campaignName"] = update.message.text  # save campaign name so that I know where to save data.
     context.bot.send_message(chat_id=update.effective_chat.id, text="Campaign loaded! Enter /startCampaign to begin.\n"
@@ -205,4 +224,3 @@ def quitCampaign(update: Update, context: CallbackContext) -> int:
     context.bot.send_message(chat_id=update.effective_chat.id, text="See you next time!")
     return ConversationHandler.END
 
-    # TODO: should be a RETURN GAMESTATE or whatever I decide to call the menu when the game starts
