@@ -3,8 +3,6 @@ from telegram import *
 from telegram.ext import *
 import os
 from classes import Character
-from classes import Monster
-from classes import Equipment
 from classes.JSONEncoder import MyEncoder
 
 cwd = os.getcwd()
@@ -117,7 +115,6 @@ def finishCreation(update: Update, context: CallbackContext):
     context.user_data["charToSave"] = dict()
     context.user_data["charToSave"][update.message.from_user.username + "char"] = charInfo
     with open(context.bot_data["campaignName"] + ".json", "r+") as file:
-        # TODO: CHECK IF IT WORKS WHEN ADDING MULTIPLE CHARACTERS
         totalCamp = json.load(file)
         file.truncate(0)
         totalCamp.update(context.user_data["charToSave"])

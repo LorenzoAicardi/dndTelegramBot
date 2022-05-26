@@ -4,14 +4,10 @@ from random import randint
 import yaml
 
 from classes import Wealth
-from classes import Adv_Gear
-from classes import Tool
-from classes import Armor
-from classes import Weapon
-from classes import Spell
-from classes import JSONEncoder
+from classes.equipment import Adv_Gear, Armor, Pack, Weapon, Tool
 from classes.JSONEncoder import MyEncoder
-from classes import Pack
+
+
 # import Wealth
 # import Adv_Gear
 # import Tool
@@ -81,7 +77,7 @@ class Equipment:
                                           item["contents"])
                     else:
                         adv_g = Adv_Gear.Adv_Gear(item["name"], item["gear_category"]["name"],
-                                              Wealth.Wealth(0, 0, 0, item["cost"]["quantity"], 0), item["weight"])
+                                                  Wealth.Wealth(0, 0, 0, item["cost"]["quantity"], 0), item["weight"])
                     self.advGear.append(adv_g)
                 elif item["equipment_category"]["index"] == 'tools':
                     tool = Tool.Tool(item["name"], item["tool_category"]["name"],

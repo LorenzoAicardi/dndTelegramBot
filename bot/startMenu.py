@@ -1,12 +1,11 @@
 import json
 import re
 
-import telegram
 from telegram import *
 from telegram.ext import *
 import os
-from classes import Character, Statistics, Monster, Equipment, Wealth, Weapon, Armor, Adv_Gear, Pack, Spell, Tool
-from . import charCreationMenu
+from classes import Character, Statistics, Monster, Wealth
+from classes.equipment import Adv_Gear, Armor, Equipment, Pack, Weapon, Tool, Spell
 
 # equipLoop = "^Mace$|^Warhammer$|^Scale Mail$|^Leather Armor$|^Chain Mail$|^Leather Armor$|^Longbow$|^Martial " \
 #             "Weapon$|^Shield$|^Martial Weapon$|^Light Crossbow$|^Handaxe$|^Dungeoneer's Pack$|^Explorer's " \

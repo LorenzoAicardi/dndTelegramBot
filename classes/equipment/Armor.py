@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Callable
-from . import Wealth
+from classes import Wealth
 # import Wealth
 
 

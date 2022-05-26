@@ -11,8 +11,6 @@ DM, DMCOMBATMENU, PLAYERMENU, RESOLVEITEMCHOICE, MONSTERSPAWNED, CHOOSEITEM, \
 CHOOSEHP, RESOLVEHPCHOICE, CHOOSETARGET, DAMAGECALC, ERROR, RMMONSTER, ADDXP, RESOLVEADDXP = range(14)
 
 
-# TODO: DAMAGE OR HEAL MOSNTER; DESPAWN MONSTER
-# TODO: CANCEL ACTION
 def activeCamp():
     return ConversationHandler(
         entry_points=[CommandHandler('startCampaignDM', menu)],
@@ -339,8 +337,7 @@ def dmCombatMenu(update: Update, context: CallbackContext):
     if "combatOrder" not in context.chat_data:
         influence(update, context)
         context.bot.send_message(chat_id=update.effective_chat.id, text="DM, type anything to initiate combat.")
-    else:  # TODO: NEEDS TO BE REWORKED
-
+    else:
         context.bot.send_message(chat_id=update.effective_chat.id, text="It's " + context.chat_data["currentPlayer"] +
                                                                         "'s turn!")
 

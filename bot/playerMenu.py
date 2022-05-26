@@ -1,10 +1,8 @@
 import telegram
 from telegram import *
 from telegram.ext import *
-import os
-from classes import Character, Dice, Statistics, Equipment
-from classes.JSONEncoder import MyEncoder
-from classes import Monster
+from classes import Dice, Statistics
+from classes.equipment import Equipment
 
 PLAYERMENU, ROLL, PLAYERCOMBATMENU, CHOOSETARGET, ADV, CALCDAMAGE, LVLUP, RESOLVESPELL, CALCDAMAGEINT = range(9)
 

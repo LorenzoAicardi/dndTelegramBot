@@ -1,22 +1,22 @@
-from . import Wealth
+from classes import Wealth
 # import Wealth
 
 
-class Tool:
+class Adv_Gear:
 
-    def __init__(self, name, tool_cat, cost: Wealth, weight):
+    def __init__(self, name, gear_cat: str, cost: Wealth, weight):
         self.name = name
-        self.tool_cat = tool_cat
+        self.gear_category = gear_cat
         self.cost = cost
         self.weight = weight
 
     def __eq__(self, other):
-        if not isinstance(other, Tool):
+        if not isinstance(other, Adv_Gear):
             return NotImplemented
 
         return (
             self.name == other.name and
-            self.tool_cat == other.tool_cat and
+            self.gear_category == other.gear_category and
             self.cost == other.cost and
             self.weight == other.weight
         )
